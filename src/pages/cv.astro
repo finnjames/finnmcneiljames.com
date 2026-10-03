@@ -1,0 +1,570 @@
+---
+import Base from '../layouts/Base.astro';
+
+// shown on the ticket, and under the title where the ticket is hidden
+const updated = 'October 2026';
+
+// alternating bar and gap widths for the ticket's barcode
+const barcodePattern = [2, 1, 1, 2, 3, 1, 1, 1, 2, 2, 1, 3, 1, 1, 2, 1, 3, 2, 1, 1, 1, 2, 2, 1, 1, 3, 2, 1, 1, 2, 3, 1, 2, 1, 1];
+const barcodeWidth = barcodePattern.reduce((sum, w) => sum + w, 0);
+const bars = barcodePattern.flatMap((width, i) =>
+  i % 2 === 0 ? [{ x: barcodePattern.slice(0, i).reduce((sum, w) => sum + w, 0), width }] : [],
+);
+---
+
+<Base title="CV">
+  <article class="page cv-container prose">
+    <header class="page-head">
+      <div>
+        <p class="label muted">Curriculum vitae</p>
+        <h1 class="display">CV</h1>
+        <p class="label muted updated">Updated {updated}</p>
+      </div>
+
+      <aside class="pass" aria-label="Boarding pass summary">
+        <div class="pass-body">
+          <div class="pass-main">
+            <div class="route">
+              <div>
+                <p class="label muted">From</p>
+                <p class="display code">LGA</p>
+              </div>
+              <svg class="plane" viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  transform="rotate(90 12 12)"
+                  d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
+                />
+              </svg>
+              <div>
+                <p class="label muted">To</p>
+                <p class="display code">RDU</p>
+              </div>
+            </div>
+            <dl>
+              <div>
+                <dt class="label muted">Passenger</dt>
+                <dd>Finn James</dd>
+              </div>
+              <div>
+                <dt class="label muted">Home</dt>
+                <dd>Brooklyn, NY</dd>
+              </div>
+            </dl>
+          </div>
+          <div class="stub">
+            <div>
+              <p class="label muted">CV updated</p>
+              <p>{updated}</p>
+            </div>
+            <svg class="barcode" viewBox={`0 0 ${barcodeWidth} 1`} preserveAspectRatio="none" aria-hidden="true">
+              {bars.map((bar) => <rect x={bar.x} width={bar.width} height="1" />)}
+            </svg>
+          </div>
+        </div>
+      </aside>
+    </header>
+
+    <section>
+      <div class="leg">
+        <p class="label muted">01</p>
+        <h2 class="display">Education</h2>
+      </div>
+      <div class="entries">
+        <div class="entry">
+          <h3>University of North Carolina at Chapel Hill</h3>
+          <p>Computer Science B.S. with a Studio Art minor. GPA: 3.94. Graduated May 2022.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="leg">
+        <p class="label muted">02</p>
+        <h2 class="display">Work</h2>
+      </div>
+      <div class="entries">
+        <div class="entry">
+          <p class="label muted">August 2022 – Present</p>
+          <h3>Google <span class="roman">— Software Engineer</span></h3>
+          <p>I work as a Software Engineer on Google Fonts in NYC.</p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">May 2021 – May 2022</p>
+          <h3>SAS <span class="roman">— UX Developer Intern</span></h3>
+          <p>I created an internal application to improve interface accessibility and consistency across platforms.</p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">August 2019 – May 2022</p>
+          <h3>UNC Department of Physics & Astronomy <span class="roman">— Research Assistant</span></h3>
+          <p>
+            I did astrophysics research and software development with Dr. Dan Reichart in the Physics & Astronomy Department at UNC.
+          </p>
+          <p>
+            I wrote the logic and UI/UX for software to interpret data coming from the 40′ radio telescope at the Green Bank Observatory. I engineered the system to interface between sixty-year-old radio astronomy equipment and modern analysis programs, all while remaining accessible to the scientists who use it for their research.
+          </p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">Spring 2021 – Spring 2022</p>
+          <h3>UNC Department of Computer Science <span class="roman">— Learning Assistant</span></h3>
+          <p>I helped teach undergraduate students in COMP541, an upper-level chip architecture course taught by Dr. Montek Singh.</p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">June 2019 – August 2022</p>
+          <h3>Freelance <span class="roman">— Web Developer & Designer</span></h3>
+          <p>
+            I did freelance design and full-stack web development. A portfolio example: the
+            <a href="https://chapelhillfriends.org" target="_blank" rel="noopener">Chapel Hill Friends Meeting website</a>.
+          </p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">Summer 2016 – Summer 2019</p>
+          <h3>Carolina Friends School <span class="roman">— Counselor</span></h3>
+          <p>I led activities with campers at Carolina Friends School Summer Programs to encourage teamwork, participation, and community.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="leg">
+        <p class="label muted">03</p>
+        <h2 class="display">Publications</h2>
+      </div>
+      <div class="entries">
+        <div class="entry">
+          <p class="label muted">August 14, 2024</p>
+          <h3>Skynet Cluster Pro Plus: An Interactive Web Application for Stellar Astronomy Education</h3>
+          <p>
+            Published in <em>Astronomy Education Journal</em>. DOI:
+            <a href="https://doi.org/10.32374/AEJ.AECON.2023.110aepw" target="_blank" rel="noopener">10.32374/AEJ.AECON.2023.110aepw</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="leg">
+        <p class="label muted">04</p>
+        <h2 class="display">Grants & Honors</h2>
+      </div>
+      <div class="entries">
+        <div class="entry">
+          <p class="label muted">June 2020 - May 2021</p>
+          <h3>NC Space Grant for Undergraduate Research Fellowship</h3>
+          <p>
+            My proposal for “A New Test of General Relativity using Binary Supermassive Black Holes and Radio Telescopes” was selected to receive funding so that I can develop and use sophisticated image processing systems for radio telescope observations of the OJ287 black hole system.
+          </p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">April 2021</p>
+          <h3>Phi Beta Kappa</h3>
+          <p>I joined the Phi Beta Kappa honor society in April of 2021.</p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">January 2021</p>
+          <h3>UNC Nomination for Barry M. Goldwater Scholarship</h3>
+          <p>
+            I was selected by my university for nomination for the Barry M. Goldwater Scholarship, a prestigious award for undergraduates to further their science and engineering research. The scholarship is particularly focused on supporting students in beginning their graduate school careers.
+          </p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">August 2019</p>
+          <h3>ERIRA</h3>
+          <p>
+            I was selected for the Educational Research In Radio Astronomy program. It is an intensive course at the Green Bank Observatory involving data collection, data analysis, deadline management, and teamwork.
+          </p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">October 2019</p>
+          <h3>HackNC Second Place Winner</h3>
+          <p>
+            I won second place for my hardware project at HackNC 2019. My team and I constructed a rig using Python and OpenCV to 3D track the position of objects in real time. As the team’s software developer, I wrote the system that interpreted the dual input streams coming from the stereoscopic camera setup so that the depth of the objects could be calculated in real time. In this project, I led my team to each build a part of the project separately and combine them seamlessly.
+          </p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">January 2019</p>
+          <h3>Honors Carolina</h3>
+          <p>I joined the UNC Honors Program in my first year.</p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">April 2017</p>
+          <h3>RYLA</h3>
+          <p>
+            I was honored with the Rotary Youth Leadership Award for exhibiting leadership and initiative in my community service and schoolwork, and I attended the associated conference. The conference is an 18-hour-a-day high-energy event where the recipients work with each other to develop leadership and problem solving skills. I was sponsored by the East Chapel Hill Rotary Club.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="leg">
+        <p class="label muted">05</p>
+        <h2 class="display">Skills</h2>
+      </div>
+      <div class="entries">
+        <div class="entry">
+          <h3>Computer Science</h3>
+          <p>
+            <strong>Proficient in:</strong> Python, C, Java, TypeScript, Vue, JavaScript, SystemVerilog,
+            <span title="source for this site on GitHub">HTML/CSS</span>
+          </p>
+          <p>
+            <strong>Courses Completed by Summer 2022:</strong> Algorithms, Cryptography, Digital Logic & Computer Design, Models of Language & Computation, Data Structures, Computer Architecture, Digital Photography, Modern Web Development, UX Design & Usability
+          </p>
+        </div>
+
+        <div class="entry">
+          <h3>Mathematics</h3>
+          <p>
+            <strong>Courses Completed by Summer 2022:</strong> Discrete Mathematics, Linear Algebra, Multivariable Calculus, Probability
+          </p>
+          <p>
+            <strong>Familiarity with:</strong> MATLAB, Wolfram Mathematica, Microsoft Excel
+          </p>
+        </div>
+
+        <div class="entry">
+          <h3>Astrophysics</h3>
+          <p>
+            <strong>Courses Completed by Summer 2022:</strong> Calculus-Based Mechanics & Relativity, Intro Astronomy & Lab, Intro Cosmology
+          </p>
+          <p>
+            <strong>Familiarity with:</strong> NumPy, Astropy, Stellarium, Radio Cartographer, Afterglow
+          </p>
+        </div>
+
+        <div class="entry">
+          <h3>Technology</h3>
+          <p><strong>IDEs & editors:</strong> VSCode, vim, PyCharm, IntelliJ IDEA, Eclipse, Vivado</p>
+          <p><strong>Tools:</strong> git, node/npm, zsh, bash</p>
+          <p><strong>Software:</strong> Photoshop, Illustrator, XD, InDesign, Premiere Pro, Audacity, Microsoft Office</p>
+          <p><strong>Operating Systems:</strong> macOS, Linux, Windows, iOS</p>
+        </div>
+
+        <div class="entry">
+          <h3>Foreign Language</h3>
+          <p><strong>Japanese:</strong> I have completed three semesters of Japanese.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="leg">
+        <p class="label muted">06</p>
+        <h2 class="display">Community Service</h2>
+      </div>
+      <div class="entries">
+        <div class="entry">
+          <p class="label muted">Spring 2018</p>
+          <h3>Cofounder, <span class="roman">Project Recap</span></h3>
+          <p>I co-founded and managed a charitable program that continues today to collect, clean, and redistribute graduation paraphernalia to high school students.</p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">Spring 2017</p>
+          <h3>Creator & Instructor, <span class="roman">CodeBuilders Programming Course</span></h3>
+          <p>I created and taught an intro programming class for middle-school-aged students. We covered Python and Web development. I designed the course to focus on fundamentals so that the students would feel more comfortable coding and working with computers.</p>
+        </div>
+
+        <div class="entry">
+          <p class="label muted">Summer 2016</p>
+          <h3>Instructor, <span class="roman">Durham Public Library</span></h3>
+          <p>I volunteered with the Durham Public Library Techno Saturdays Program, where I taught programming and computer science to children who might otherwise not have had exposure to computers.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="leg">
+        <p class="label muted">07</p>
+        <h2 class="display">Interests</h2>
+      </div>
+      <div class="entries">
+        <div class="entry">
+          <h4>Photography</h4>
+          <p>A few of my recent images may be found in my <a href="/portfolio#photography">Portfolio</a>.</p>
+        </div>
+
+        <div class="entry">
+          <h4>Drawing & Painting</h4>
+          <p>Likewise, a few of my drawings <a href="/portfolio#drawing">may also be found there</a>.</p>
+        </div>
+
+        <div class="entry">
+          <h4>Fashion</h4>
+          <p>I love fashion and fashion history. My favorite current designer is Peter Do.</p>
+        </div>
+
+        <div class="entry">
+          <h4>Martial Arts</h4>
+          <p>I have practiced martial arts for years and have achieved a second degree black belt in the Japanese martial art <em>toshindo</em>.</p>
+        </div>
+
+        <div class="entry">
+          <h4>Reading</h4>
+          <p>My favorite books include <em>The Brief Wondrous Life of Oscar Wao</em> by Junot Díaz, <em>Jane Eyre</em> by Charlotte Brontë, and <em>Going Postal</em> by Terry Pratchett.</p>
+        </div>
+
+        <div class="entry">
+          <h4>Cooking</h4>
+          <p>
+            I love to cook, especially South Asian and Japanese cuisine. I also once threw a Latke–Hamantash Debate event in the style of
+            <a href="https://en.wikipedia.org/wiki/Latke%E2%80%93Hamantash_Debate" target="_blank" rel="noopener">the original</a>, which involved both making and arguing about the relative metaphysical merits of both foods.
+          </p>
+        </div>
+      </div>
+    </section>
+  </article>
+</Base>
+
+<style lang="scss">
+  .cv-container {
+    padding-bottom: 2rem;
+  }
+
+  .page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem var(--gutter);
+  }
+
+  /* wherever the ticket is shown the title is at its full size, rather than growing with the window */
+  @media screen and (min-width: 920px) {
+    .page-head h1 {
+      font-size: var(--title-max);
+    }
+  }
+
+  /* stands in for the ticket where there is no room for it */
+  .updated {
+    display: none;
+  }
+
+  .pass {
+    --notch: 0.7rem;
+    --stub: 10rem;
+    --dash: 6px;
+    /* one fixed size: the ticket is either shown whole beside the title or not at all */
+    flex: none;
+    width: 40rem;
+    margin-right: 1rem;
+    font-family: var(--font-mono);
+    --tilt: 2deg;
+    rotate: var(--tilt);
+    /* the shadow is a filter on this wrapper so that it follows the notches cut out of the body */
+    filter: drop-shadow(0 0 0 transparent);
+    transition: scale 240ms cubic-bezier(0, 0.62, 0.34, 1), rotate 240ms cubic-bezier(0, 0.62, 0.34, 1),
+      filter 240ms cubic-bezier(0, 0.62, 0.34, 1);
+
+    /* lifts off the page like the logo does */
+    @media (min-width: 768px) {
+      &:hover {
+        scale: 1.08;
+        rotate: calc(var(--tilt) * 2);
+        filter: drop-shadow(0 1rem 1.2rem oklch(0 0 0 / 0.3));
+      }
+    }
+
+    p, dl, dd {
+      margin: 0;
+    }
+  }
+
+  .pass-body {
+    display: grid;
+    grid-template-columns: 1fr var(--stub);
+    border: 1px solid var(--fg);
+    border-radius: 1.2rem;
+    background: var(--bg);
+    transition: background-color 320ms;
+    /* a notch punched through at each end of the perforation */
+    mask:
+      radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 0, transparent calc(100% - 1.5px), black calc(100% - 1px)),
+      radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 100%, transparent calc(100% - 1.5px), black calc(100% - 1px));
+    mask-composite: intersect;
+  }
+
+  /* in dark mode the ticket is a shade lighter than the page, so it reads as a card */
+  :global([data-color-mode="dark"]) .pass-body {
+    background: color-mix(in oklab, var(--fg) 6%, var(--bg));
+  }
+
+  .pass-main,
+  .stub {
+    padding: 1.6rem;
+  }
+
+  .route {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  /* needs the extra class to outrank the ticket's blanket margin reset on paragraphs */
+  .pass .code {
+    font-size: 4.5rem;
+    margin: 0.6rem 0 0.8rem;
+  }
+
+  .plane {
+    flex: 1;
+    min-width: 1.5rem;
+    height: 2.2rem;
+    fill: currentColor;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+    gap: 1rem;
+    margin-top: 1.8rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line);
+  }
+
+  dd, .stub p:not(.label) {
+    --wght: var(--font-weight-bold);
+    margin-top: 0.2rem;
+  }
+
+  /* the tear-off stub: a perforation down its edge, and the outline of the notch at each end */
+  .stub {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+    background: repeating-linear-gradient(var(--fg) 0 var(--dash), transparent var(--dash) calc(var(--dash) * 2)) left / 2px 100%
+      no-repeat;
+    position: relative;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      left: calc(1px - var(--notch));
+      width: calc(var(--notch) * 2);
+      height: calc(var(--notch) * 2);
+      border: 1px solid var(--fg);
+      border-radius: 50%;
+    }
+
+    &::before {
+      top: calc(-1px - var(--notch));
+    }
+
+    &::after {
+      bottom: calc(-1px - var(--notch));
+    }
+  }
+
+  /* drawn as vector bars so the edges stay smooth when the ticket is tilted */
+  .barcode {
+    display: block;
+    width: 100%;
+    height: 3.4rem;
+    fill: currentColor;
+  }
+
+  section {
+    display: grid;
+    /* wide enough for the longest one-word heading, "Publications" */
+      grid-template-columns: minmax(14.5rem, 1fr) 3fr;
+    gap: 1rem var(--gutter);
+    padding: 1.2rem 0 clamp(2rem, 5vw, 4rem);
+    border-top: 1px solid var(--fg);
+  }
+
+  .leg {
+    position: sticky;
+    top: calc(var(--header-h) + 1.2rem);
+    align-self: start;
+  }
+
+  h2 {
+    margin-top: 0.5rem;
+    font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+    line-height: 0.95;
+  }
+
+  /* entries are waypoints along the route */
+  .entries {
+    max-width: 44rem;
+    border-left: 1px solid var(--line);
+  }
+
+  .entry {
+    position: relative;
+    padding: 0 0 2rem 1.8rem;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: calc(-0.3rem - 0.5px);
+      top: 0.3rem;
+      width: 0.6rem;
+      height: 0.6rem;
+      border: 1px solid var(--fg);
+      border-radius: 50%;
+      background: var(--bg);
+      transition: background-color 320ms;
+    }
+  }
+
+  h3, h4 {
+    margin: 0.3rem 0 0.5rem;
+    font-size: 1.25rem;
+    letter-spacing: 0;
+  }
+
+  .entry p:not(.label) {
+    margin-top: 0.4rem;
+    margin-bottom: 0.8rem;
+    line-height: 1.55;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .updated-text {
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--fg);
+  }
+
+  /* below this width the ticket no longer fits beside the title, so only its date is kept */
+  @media screen and (max-width: 919px) {
+    .pass {
+      display: none;
+    }
+
+    .updated {
+      display: block;
+      margin-top: 0.9rem;
+    }
+  }
+
+  @media screen and (max-width: 767px) {
+    section {
+      grid-template-columns: 1fr;
+    }
+
+    .leg {
+      position: static;
+    }
+  }
+</style>

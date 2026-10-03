@@ -1,0 +1,57 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { formatDate, getPosts } from '../../posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Base title={post.data.title} description={post.data.snippet}>
+  <article class="page post-article">
+    <a href="/posts" class="label back-link">← All Posts</a>
+    <p class="label muted post-date">{formatDate(post.data.date)}</p>
+    <h1 class="post-title">{post.data.title}</h1>
+    <div class="post-content prose">
+      <Content />
+    </div>
+  </article>
+</Base>
+
+<style lang="scss">
+  /* a single reading column, centered on the page */
+  .post-article {
+    max-width: calc(42rem + 2 * var(--gutter));
+    margin-inline: auto;
+    padding-bottom: 3rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin: 2rem 0 clamp(2rem, 6vw, 5rem);
+    color: var(--fg);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .post-title {
+    margin: 0.8rem 0 clamp(2rem, 5vw, 4rem);
+    font-size: min(clamp(2.4rem, 7vw, 4.5rem), var(--title-max));
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+  }
+
+  .post-content {
+    padding-top: 2rem;
+    border-top: 1px solid var(--fg);
+    font-size: 1.05rem;
+  }
+</style>

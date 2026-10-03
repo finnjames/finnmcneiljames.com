@@ -1,0 +1,147 @@
+---
+import Base from '../layouts/Base.astro';
+
+interface Plate {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+  layout: string;
+}
+
+const photography: Plate[] = [
+  { src: '/art/p-e2.webp', alt: 'Eszter 1', width: 1600, height: 1066, layout: 'wide' },
+  { src: '/art/p-c1.webp', alt: 'Coulture', width: 1069, height: 1602, layout: 'tall' },
+  { src: '/art/p-t1.webp', alt: 'Thomas', width: 1066, height: 1600, layout: 'tall' },
+  { src: '/art/p-h1.webp', alt: 'Hannah', width: 1500, height: 1000, layout: 'wide' },
+  { src: '/art/p-e1.webp', alt: 'Eszter 2', width: 1000, height: 1500, layout: 'inset' },
+];
+
+const drawing: Plate[] = [
+  { src: '/art/a-c1.webp', alt: 'Charcoal drawing of my desk', width: 1334, height: 1600, layout: 'half' },
+  { src: '/art/a-i1.webp', alt: 'Ink drawing in the style of Mucha', width: 1032, height: 1600, layout: 'half' },
+  { src: '/art/a-c2.webp', alt: 'Charcoal drawings with a backlight', width: 1600, height: 800, layout: 'spread' },
+];
+---
+
+<Base title="Portfolio">
+  <div id="portfolio" class="page">
+    <header class="page-head">
+      <p class="label muted">{photography.length + drawing.length} plates</p>
+      <h1 class="display">Portfolio</h1>
+    </header>
+
+    <section>
+      <h2 id="photography" class="display">Photography</h2>
+      <div class="plates">
+        {
+          photography.map((plate, i) => (
+            <figure class={plate.layout}>
+              <img loading="lazy" alt={plate.alt} src={plate.src} width={plate.width} height={plate.height} />
+              <figcaption class="label">
+                <span class="muted">P—0{i + 1}</span> {plate.alt}
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </section>
+
+    <section>
+      <h2 id="drawing" class="display">Drawing</h2>
+      <div class="plates">
+        {
+          drawing.map((plate, i) => (
+            <figure class={plate.layout}>
+              <img loading="lazy" alt={plate.alt} src={plate.src} width={plate.width} height={plate.height} />
+              <figcaption class="label">
+                <span class="muted">D—0{i + 1}</span> {plate.alt}
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style lang="scss">
+  #portfolio {
+    padding-bottom: 3rem;
+  }
+
+  h2 {
+    margin: clamp(3rem, 8vw, 7rem) 0 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--fg);
+    /* section titles stay clearly below the page title */
+    font-size: clamp(1.6rem, 7vw, 4rem);
+    /* the rule above the title must stay on the margin, so only the letters are pulled left here */
+    translate: none;
+    text-indent: calc(-1 * var(--title-bearing));
+  }
+
+  /* the first section sits straight under the page title */
+  section:first-of-type h2 {
+    margin-top: 0;
+  }
+
+  .plates {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(2rem, 5vw, 5rem) var(--gutter);
+    align-items: end;
+  }
+
+  figure {
+    margin: 0;
+    grid-column: span 12;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 92vh;
+    object-fit: contain;
+    object-position: left bottom;
+  }
+
+  figcaption {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 0.7rem;
+  }
+
+  /* the plate number stays in one piece; a long title wraps beside it instead */
+  figcaption .muted {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  @media screen and (min-width: 768px) {
+    .wide {
+      grid-column: span 8;
+    }
+
+    .tall {
+      grid-column: span 4;
+    }
+
+    .inset {
+      grid-column: 4 / span 5;
+    }
+
+    .half {
+      grid-column: span 5;
+    }
+
+    .half + .half {
+      grid-column: 8 / span 4;
+    }
+
+    .spread {
+      grid-column: 2 / span 10;
+    }
+  }
+</style>

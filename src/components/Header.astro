@@ -1,0 +1,399 @@
+---
+const { pathname } = Astro.url;
+// the home link only matches the home page; the others also match the pages beneath them
+const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`));
+---
+
+<div class="site-header">
+  <header id="header">
+    <a id="logo" href="/">
+      <span class="display">Finn James</span>
+    </a>
+    <nav id="site-nav" aria-label="Main">
+      <div class="nav-container" id="nav-links">
+        <a
+          class:list={['nav-item', 'mobile-only', { active: isActive('/') }]}
+          href="/"
+          aria-current={isActive('/') ? 'page' : undefined}
+        >
+          <span class="label num" aria-hidden="true">00</span>
+          Home
+        </a>
+        <a
+          class:list={['nav-item', 'desktop', { active: isActive('/cv') }]}
+          href="/cv"
+          aria-current={isActive('/cv') ? 'page' : undefined}
+        >
+          <span class="label num" aria-hidden="true">01</span>
+          CV
+        </a>
+        <a
+          class:list={['nav-item', 'desktop', { active: isActive('/posts') }]}
+          href="/posts"
+          aria-current={isActive('/posts') ? 'page' : undefined}
+        >
+          <span class="label num" aria-hidden="true">02</span>
+          Posts
+        </a>
+        <a
+          class:list={['nav-item', 'desktop', { active: isActive('/portfolio') }]}
+          href="/portfolio"
+          aria-current={isActive('/portfolio') ? 'page' : undefined}
+        >
+          <span class="label num" aria-hidden="true">03</span>
+          Portfolio
+        </a>
+      </div>
+    </nav>
+    <button
+      id="color-mode-toggle"
+      type="button"
+      role="switch"
+      aria-label="Dark mode"
+      aria-checked="false"
+    >
+      <span class="handle" aria-hidden="true">
+        <span class="sun"></span>
+        <span class="moon"></span>
+      </span>
+    </button>
+    <button
+      id="menu-icon"
+      class="label"
+      type="button"
+      aria-controls="nav-links"
+      aria-expanded="false"
+    >
+      Menu
+    </button>
+  </header>
+</div>
+
+<style lang="scss">
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: block;
+  }
+
+  #header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    height: var(--header-h);
+    padding: 0 var(--gutter);
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background: color-mix(in oklab, var(--bg) 78%, transparent);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background-color 320ms;
+    }
+  }
+
+  #logo {
+    touch-action: manipulation;
+    margin-right: auto;
+    color: var(--fg);
+    font-size: 1.8rem;
+    text-decoration: none;
+    white-space: nowrap;
+
+    /* translate needs a box, and the trimmed right margin keeps the hover underline to the width of the letters */
+    .display {
+      font-family: "SUSE Variable";
+      text-transform: none;
+      display: inline-block;
+      margin-right: calc(-2 * var(--title-bearing));
+    }
+    display: inline-block;
+    line-height: 1;
+    position: relative;
+
+    /* the same underline the nav links draw on hover */
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -0.3rem;
+      height: 2px;
+      background: var(--fg);
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+
+    &:hover::after {
+      opacity: 1;
+    }
+
+    /* on the smallest phones the name shrinks just enough to fit beside the toggle and menu button */
+    @media (max-width: 767px) {
+      font-size: min(1.8rem, calc((100vw - 150px) / 7));
+    }
+  }
+
+  button {
+    background: none;
+    border: none;
+    color: var(--fg);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .nav-container {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2.5vw, 2.4rem);
+  }
+
+  .nav-item {
+    font-family: var(--font-mono);
+    --wght: 500;
+    touch-action: manipulation;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.6rem 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--fg);
+    position: relative;
+
+    &.mobile-only {
+      display: none;
+    }
+
+    .num {
+      color: var(--muted);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0.3rem;
+      height: 2px;
+      background: var(--fg);
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+
+    &:hover::after,
+    &.active::after {
+      opacity: 1;
+    }
+
+    &.active {
+      --wght: var(--font-weight-bold);
+    }
+  }
+
+  /* a vertical switch whose handle is the sun, up, in light mode and dissolves into the moon, down, in dark */
+  #color-mode-toggle {
+    --travel: 1rem;
+    width: 1.6rem;
+    height: calc(1.6rem + var(--travel));
+    padding: 0;
+    flex: none;
+    margin-left: 0.8rem;
+
+    @media (max-width: 767px) {
+      margin-left: 0;
+    }
+
+    border-radius: 0.8rem;
+    background: var(--accent);
+    position: relative;
+    transition: background-color 300ms;
+
+    .handle {
+      position: absolute;
+      top: 0.2rem;
+      left: 0.2rem;
+      width: 1.2rem;
+      height: 1.2rem;
+      transition: translate 400ms cubic-bezier(0.3, 0.7, 0.4, 1.3);
+    }
+
+    .sun,
+    .moon {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      transition: opacity 400ms ease, box-shadow 400ms ease;
+    }
+
+    .sun {
+      background: var(--white);
+      box-shadow: 0 0 0.4rem 0.15rem var(--white), 0 0 1.1rem 0.4rem oklch(1 0 0 / 0.75);
+    }
+
+    /* the photo has margins around the disc, so it is scaled up until the disc fills the circle */
+    .moon {
+      background: url("/images/moon.webp") center / auto 110% no-repeat;
+      /* a wide, faint, bluish haze */
+      box-shadow: 0 0 0.9rem 0.1rem oklch(0.82 0.06 240 / 0.28);
+      opacity: 0;
+    }
+
+    /* the glow brightens while hovered */
+    &:hover .sun {
+      box-shadow: 0 0 0.7rem 0.35rem var(--white), 0 0 2rem 0.8rem oklch(1 0 0 / 0.95);
+    }
+
+    &:hover .moon {
+      box-shadow: 0 0 1.3rem 0.3rem oklch(0.82 0.06 240 / 0.55);
+    }
+  }
+
+  :global([data-color-mode="dark"]) #color-mode-toggle {
+    background: color-mix(in oklab, var(--fg) 30%, var(--bg));
+
+    .handle {
+      translate: 0 var(--travel);
+    }
+
+    .sun {
+      opacity: 0;
+    }
+
+    .moon {
+      opacity: 1;
+    }
+  }
+
+  #menu-icon {
+    display: none;
+    padding: 0.8rem 0;
+    min-width: 3.2rem;
+    text-align: right;
+  }
+
+  @media screen and (max-width: 767px) {
+    #menu-icon {
+      display: block;
+    }
+
+    .nav-container {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-end;
+      gap: 0;
+      padding: var(--header-h) var(--gutter) 2rem;
+      background: var(--bg);
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 300ms cubic-bezier(0, 0.62, 0.34, 1), visibility 300ms;
+    }
+
+    .nav-item {
+      font-family: var(--font-title);
+      --wght: var(--font-weight-display);
+      width: 100%;
+      padding: 0.5rem 0;
+      border-top: 1px solid var(--line);
+      font-size: min(clamp(2.2rem, 12vw, 6rem), var(--title-max));
+      letter-spacing: 0;
+      line-height: 1;
+      transform: translateY(2rem);
+      transition: transform 500ms cubic-bezier(0, 0.62, 0.34, 1);
+
+      &.mobile-only {
+        display: flex;
+      }
+
+      &.active {
+        color: var(--accent);
+      }
+
+      &::after {
+        display: none;
+      }
+    }
+
+    nav.active {
+      .nav-container {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .nav-item {
+        transform: none;
+      }
+    }
+  }
+</style>
+
+<script>
+  type ColorMode = 'light' | 'dark';
+
+  const STORAGE_KEY = 'color-mode';
+  const root = document.documentElement;
+  const toggle = document.querySelector<HTMLButtonElement>('#color-mode-toggle')!;
+  const systemQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const systemMode = (): ColorMode => (systemQuery.matches ? 'dark' : 'light');
+
+  function stored(): ColorMode | 'system' {
+    try {
+      const value = window.localStorage.getItem(STORAGE_KEY);
+      return value === 'dark' || value === 'light' ? value : 'system';
+    } catch {
+      return 'system';
+    }
+  }
+
+  function persist(preference: ColorMode | 'system'): void {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, preference);
+    } catch {
+      // ignore localStorage access errors
+    }
+  }
+
+  function apply(mode: ColorMode): void {
+    root.setAttribute('data-color-mode', mode);
+    toggle.setAttribute('aria-checked', String(mode === 'dark'));
+  }
+
+  // what is stored: an explicit mode only when it differs from the system's
+  let preference = stored();
+  apply(preference === 'system' ? systemMode() : preference);
+  persist(preference);
+
+  toggle.addEventListener('click', () => {
+    const mode: ColorMode = root.getAttribute('data-color-mode') === 'dark' ? 'light' : 'dark';
+    // choosing what the system already wants hands control back to the system
+    preference = mode === systemMode() ? 'system' : mode;
+    apply(mode);
+    persist(preference);
+  });
+
+  systemQuery.addEventListener('change', () => {
+    if (preference === 'system') {
+      apply(systemMode());
+    }
+  });
+
+  const nav = document.querySelector<HTMLElement>('#site-nav')!;
+  const menuButton = document.querySelector<HTMLButtonElement>('#menu-icon')!;
+
+  menuButton.addEventListener('click', () => {
+    const open = nav.classList.toggle('active');
+    menuButton.setAttribute('aria-expanded', String(open));
+    menuButton.textContent = open ? 'Close' : 'Menu';
+  });
+</script>

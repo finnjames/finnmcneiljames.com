@@ -1,0 +1,74 @@
+---
+import '@fontsource-variable/suse/index.css';
+import '@fontsource-variable/geist-mono/index.css';
+import '../styles/global.scss';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  /** Shown before the site name in the tab title. */
+  title?: string;
+  description?: string;
+  footer?: boolean;
+}
+
+const { title, description = 'I’m Finn, a software engineer & artist.', footer = true } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title ? `${title} — Finn James` : 'Finn James'}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="preload" href="/fonts/OB-sys12-VF.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- runs before the first paint, so the page never flashes the wrong color mode -->
+    <script is:inline>
+      (function () {
+        function getInitialColorMode() {
+          try {
+            var persistedColorMode = window.localStorage.getItem("color-mode");
+            if (persistedColorMode === "dark" || persistedColorMode === "light") return persistedColorMode;
+            if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
+          } catch (e) {}
+          return "light";
+        }
+        var colorMode = getInitialColorMode();
+        document.documentElement.setAttribute("data-color-mode", colorMode);
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <Header />
+      <main>
+        <div class="content-area">
+          <slot />
+        </div>
+        {footer && <Footer />}
+      </main>
+    </div>
+  </body>
+</html>
+
+<style lang="scss">
+  .container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  main {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content-area {
+    flex: 1 0 auto;
+  }
+</style>

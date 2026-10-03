@@ -1,0 +1,163 @@
+---
+// kept out of the source as plain text
+const email = Buffer.from('6865794066736a2e78797a', 'hex').toString();
+---
+
+<div id="email-container">
+  <label id="email-label" class="label" for="email-input">email</label>
+  <svg class="joint" viewBox="-0.35 -1.1876 0.7 2.3753" aria-hidden="true"><path d="M-0.8778 -1.1876A1.31 1.31 0 0 0 0.8778 -1.1876L0.9381 -1.1208A1.51 1.51 0 0 0 0.9381 1.1208L0.8778 1.1876A1.31 1.31 0 0 0 -0.8778 1.1876L-0.9381 1.1208A1.51 1.51 0 0 0 -0.9381 -1.1208Z" /></svg>
+  <div id="address-wrapper">
+    <input
+      id="email-input"
+      name="email"
+      type="email"
+      value={email}
+      style={`width: ${email.length}ch`}
+      readonly
+    />
+  </div>
+
+  <svg class="joint" viewBox="-0.35 -1.1876 0.7 2.3753" aria-hidden="true"><path d="M-0.8778 -1.1876A1.31 1.31 0 0 0 0.8778 -1.1876L0.9381 -1.1208A1.51 1.51 0 0 0 0.9381 1.1208L0.8778 1.1876A1.31 1.31 0 0 0 -0.8778 1.1876L-0.9381 1.1208A1.51 1.51 0 0 0 -0.9381 -1.1208Z" /></svg>
+  <button
+    id="copy"
+    class="label"
+    type="button"
+    aria-label="copy email address"
+  >
+    <span aria-live="polite">Copy</span>
+  </button>
+</div>
+
+<style lang="scss">
+  /* three capsules joined by thinner segments, like the strokes of the title face's letters */
+  #email-container {
+    --radius: 1.6rem;
+    --pad: 1.3rem;
+    /* outlines are a touch heavier in light mode, where dark lines on a light ground read thinner */
+    --stroke: 3px;
+    /* each cell hugs its own text, so the space around the text is the same in all three */
+    display: flex;
+    align-items: stretch;
+    height: 3.2rem;
+    width: fit-content;
+    max-width: 100%;
+  }
+
+  :global([data-color-mode="light"]) #email-container {
+    --stroke: 4px;
+  }
+
+  #email-label {
+    display: flex;
+    align-items: center;
+    /* letter-spacing leaves a gap after the last letter, which would otherwise read as extra padding */
+    padding: 0 calc(var(--pad) - 0.08em) 0 var(--pad);
+    border-radius: var(--radius);
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  #address-wrapper {
+    display: flex;
+    flex: 0 1 auto;
+    align-items: center;
+    padding: 0 calc(var(--pad) - var(--stroke));
+    min-width: 0;
+    border: var(--stroke) solid var(--fg);
+    border-radius: var(--radius);
+  }
+
+  /* the joint between two cells: a 1.7rem waist that fillets into the capsules' round ends. Its path is worked out
+     for 3.2rem-tall capsules 0.7rem apart: the arc bitten out of the top and the bottom touches the waist at
+     mid-gap and is tangent to both neighboring ends, which fixes its radius at 1.31rem. From those tangent
+     points the path's sides run 0.09rem inside the capsules' edges instead of along them, hidden by the filled
+     cell or the outlined cells' border, so the two shapes overlap and no seam can show between them. The svg
+     takes up only the gap; the path spills over the capsules on either side */
+  .joint {
+    flex: none;
+    align-self: center;
+    width: 0.7rem;
+    height: 2.3753rem;
+    overflow: visible;
+    fill: var(--fg);
+    pointer-events: none;
+  }
+
+  input {
+    font-family: var(--font-mono);
+    background: transparent;
+    border: none;
+    padding: 0;
+    max-width: 100%;
+    color: var(--fg);
+    font-size: 1.05rem;
+    outline: none;
+  }
+
+  #address-wrapper:focus-within {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  #copy {
+    /* "Copy" and "Done" are the same width in this face, so the cell doesn't change size when its label does */
+    padding: 0 calc(var(--pad) - var(--stroke) - 0.08em) 0 calc(var(--pad) - var(--stroke));
+    border: var(--stroke) solid var(--fg);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--fg);
+    cursor: pointer;
+    transition: background-color 200ms, color 200ms;
+
+    &:hover {
+      background: var(--fg);
+      color: var(--bg);
+    }
+
+    &:active {
+      background: var(--accent);
+    }
+  }
+
+  /* the smallest phones need tighter cells for the whole address to fit */
+  @media screen and (max-width: 380px) {
+    #email-container {
+      --pad: 0.85rem;
+    }
+
+    input {
+      font-size: 0.95rem;
+    }
+  }
+
+  /* on phones the widget spans the row, and the three cells share the extra space equally */
+  @media screen and (max-width: 767px) {
+    #email-container {
+      width: 100%;
+    }
+
+    #email-label,
+    #address-wrapper,
+    #copy {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  const input = document.querySelector<HTMLInputElement>('#email-input')!;
+  const button = document.querySelector<HTMLButtonElement>('#copy')!;
+  const label = button.querySelector('span')!;
+
+  input.addEventListener('focus', () => input.select());
+
+  button.addEventListener('click', () => {
+    input.select();
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(input.value);
+      label.textContent = 'Done';
+      window.setTimeout(() => (label.textContent = 'Copy'), 1600);
+    }
+  });
+</script>

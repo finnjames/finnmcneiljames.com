@@ -1,0 +1,338 @@
+---
+import Base from '../layouts/Base.astro';
+import EmailWidget from '../components/EmailWidget.astro';
+---
+
+<Base footer={false}>
+  <div class="home">
+    <section class="hero">
+      <h1 class="visually-hidden">Finn James</h1>
+
+      <div class="intro prose">
+        <p class="display hey">Hey!</p>
+
+        <p class="intro-p">
+          My name is <strong>Finn James</strong><span class="label muted">(he/him)</span>
+        </p>
+
+        <p class="intro-p">
+          I’m an artist and software engineer based in Brooklyn, NY. I also build
+          <a href="https://github.com/finnjames/threepio" target="_blank" rel="noopener">data acquisition systems</a> for
+          <a href="https://skynet.unc.edu" target="_blank" rel="noopener">radio telescopes</a>.
+        </p>
+
+        <p class="links">
+          <a class="label" href="https://github.com/finnjames" target="_blank" rel="noopener">
+            GitHub
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 3H3v10h10V9.5M9.5 3H13v3.5M13 3 7.5 8.5" /></svg>
+          </a>
+          <a class="label" href="https://www.printables.com/@finnjames" target="_blank" rel="noopener">
+            Printables
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 3H3v10h10V9.5M9.5 3H13v3.5M13 3 7.5 8.5" /></svg>
+          </a>
+        </p>
+
+        <div class="email-wrapper">
+          <EmailWidget />
+        </div>
+      </div>
+
+      <div id="stage" aria-hidden="true">
+        <div class="floor"></div>
+        <div id="splash"></div>
+      </div>
+    </section>
+
+    <div class="underlay" aria-hidden="true"></div>
+  </div>
+</Base>
+
+<style lang="scss">
+  @use "sass:math";
+
+  /* how steeply the line between wall and floor climbs to the left */
+  $crease: 20deg;
+
+  /* gradients can't be transitioned, but registered color properties can: the wall's two colors are animated
+     instead, so the hero fades between color modes in step with the rest of the page */
+  @property --wall {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: transparent;
+  }
+
+  @property --glow {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: transparent;
+  }
+
+  .home {
+    --wall: var(--bg);
+    --glow: oklch(0.92 0.04 223.1);
+    transition: --wall 320ms, --glow 320ms;
+    /* the wall color fading out over the light. A plain fade to transparent is composited in sRGB and comes out
+       brighter, so shorter-looking, than the old wall-to-light gradient, which was mixed in oklab; the three
+       middle stops hold the wall on a little longer to trace that curve */
+    --wall-fade:
+      var(--wall) 45%,
+      color-mix(in srgb, var(--wall) 79%, transparent) 58.75%,
+      color-mix(in srgb, var(--wall) 54.5%, transparent) 72.5%,
+      color-mix(in srgb, var(--wall) 28.3%, transparent) 86.25%,
+      transparent;
+    /* dither for the gradients: a tile of per-pixel noise, independent in each color channel, mixed in at only a
+       few 8-bit levels of strength. That is too little to see as grain, but enough to break up the edges between
+       the gradient's bands */
+    --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='1' stitchTiles='stitch'/%3E%3CfeColorMatrix values='2.5 0 0 0 -0.75 0 2.5 0 0 -0.75 0 0 2.5 0 -0.75 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    --dither: 0.02;
+    /* where the illustration's left edge falls across the window */
+    --stage-left: calc(96vw - min(64svh, 50vw));
+  }
+
+  :global([data-color-mode="dark"]) .home {
+    /* sampled from the edge light on the illustration */
+    --glow: oklch(0.764 0.081 223.1);
+    /* the dither lifts this black to the same dark gray as the rest of the site */
+    --wall: var(--black);
+    /* dark gradients band the most, and more so once Night Shift squeezes the blue channel */
+    --dither: 0.035;
+  }
+
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+    min-height: max(100svh, 40rem);
+    margin-top: calc(-1 * var(--header-h));
+    padding: calc(var(--header-h) + 1.2rem) var(--gutter) var(--gutter);
+
+    /* three layers, back to front: this flat field of the figure's blue edge light, then the floor, then the wall
+       color fading out across both of them. Because the floor sits under that fade, it disappears into the wall
+       along the same edge as the light does, and no second edge crosses it */
+    background: var(--glow);
+  }
+
+  .hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: linear-gradient(var(--glow-angle, 68deg), var(--wall-fade));
+    pointer-events: none;
+  }
+
+  .hero::before,
+  .underlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--noise);
+    opacity: var(--dither);
+    pointer-events: none;
+  }
+
+  .hero::before {
+    z-index: -1;
+  }
+
+  /* a mirror image of the hero's ground, parked just below the window: it adds no scroll height, and is only seen
+     if the browser lets the page be pulled past its end */
+  .underlay {
+    position: fixed;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: max(100svh, 40rem);
+    transform: scaleY(-1);
+    pointer-events: none;
+    background:
+      linear-gradient(var(--glow-angle, 68deg), var(--wall-fade)),
+      linear-gradient(oklch(0 0 0 / 0.05), oklch(0 0 0 / 0.05)),
+      var(--glow);
+  }
+
+  /* the name is shown in the site header; this keeps a page heading for screen readers */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  #stage {
+    position: absolute;
+    bottom: -1.2rem;
+    right: 4vw;
+    height: min(96svh, 75vw);
+    aspect-ratio: 2 / 3;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  /* the floor meets the wall behind the figure's back; both darken into the crease like ambient occlusion.
+     The figure is drawn from above and to the right, so the crease climbs as the wall recedes to the left. It is
+     drawn as one slanted gradient on an unrotated box: a skewed box looks the same, but Firefox repaints it in
+     software on every frame of the color mode fade */
+  .floor {
+    /* the wall's shadow begins 11rem above the crease, which runs through the stage's right edge 77% of the way
+       down. The gradient is measured from the box's top right corner, a window's width further right and far
+       enough up that the box covers the shadow all the way to the left edge */
+    --shadow-at: calc(200vw * #{math.sin($crease)});
+    --crease-at: calc(var(--shadow-at) + #{11rem * math.cos($crease)});
+    position: absolute;
+    top: calc(77% - 11rem - 100vw * #{math.tan($crease)});
+    bottom: -100vh;
+    left: -100vw;
+    right: -100vw;
+    z-index: -3;
+    background: linear-gradient(
+      180deg + $crease,
+      /* the wall's share of the shadow: strong enough to still read through the wall color where that covers it,
+         to the left of the figure, but lighter than the floor at the crease so the line between them stays crisp */
+      transparent var(--shadow-at),
+      oklch(0 0 0 / 0.08) calc(var(--shadow-at) + #{4.95rem * math.cos($crease)}),
+      oklch(0 0 0 / 0.22) var(--crease-at),
+      oklch(0 0 0 / 0.45) calc(var(--crease-at) + 1px),
+      oklch(0 0 0 / 0.16) calc(var(--crease-at) + #{4rem * math.cos($crease)}),
+      oklch(0 0 0 / 0.06) calc(var(--crease-at) + #{12rem * math.cos($crease)})
+    );
+  }
+
+  #splash {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: url("/images/writing-me.webp") center / contain no-repeat;
+  }
+
+  .intro {
+    position: relative;
+    z-index: 2;
+    max-width: 24rem;
+  }
+
+  .hey {
+    margin-top: clamp(1.5rem, 4vw, 3.5rem);
+    margin-bottom: 1.4rem;
+    font-size: var(--title-max);
+  }
+
+  .intro-p {
+    .label {
+      margin-left: 0.3em;
+      baseline-shift: 0.4rem;
+    }
+
+    font-size: 1.3rem;
+    line-height: 1.5;
+    margin: 0 0 0.9rem;
+    text-shadow: 0 0 2.2rem var(--bg);
+  }
+
+  /* links that leave the site */
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 1.4rem 0 0;
+
+    a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      /* the same height as the email widget below */
+      height: 3.2rem;
+      padding: 0 1.3rem;
+      border-radius: 1.6rem;
+      background: var(--blue);
+      color: var(--white);
+      text-decoration: none;
+      transition: background-color 200ms;
+
+      &:hover {
+        background: color-mix(in oklab, var(--blue) 80%, var(--black));
+        color: var(--white);
+      }
+    }
+
+    svg {
+      width: 1rem;
+      height: 1rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+  }
+
+  .email-wrapper {
+    /* a little narrower than the text so it clears the figure's shoe on narrow windows */
+    max-width: calc(100% - 20px);
+    margin-top: 1.1rem;
+  }
+
+  @media screen and (max-width: 767px) {
+    /* stacked: text first, then the figure pushed down to the bottom of the screen */
+    .hero {
+      min-height: 100svh;
+    }
+
+    /* the figure sits below the text here, so the light falls from the right and pools low, beside the figure,
+       leaving the text above it on the plain wall color */
+    .hero,
+    .underlay {
+      --glow-angle: 120deg;
+    }
+
+    /* the light now ends up strongest right where the floor is, so the floor is knocked back toward the wall color */
+    .floor {
+      --floor-tint: color-mix(in srgb, var(--wall) 60%, transparent);
+      background:
+        linear-gradient(
+          180deg + $crease,
+          transparent var(--shadow-at),
+          oklch(0 0 0 / 0.08) calc(var(--shadow-at) + #{4.95rem * math.cos($crease)}),
+          oklch(0 0 0 / 0.22) var(--crease-at),
+          oklch(0 0 0 / 0.45) calc(var(--crease-at) + 1px),
+          oklch(0 0 0 / 0.16) calc(var(--crease-at) + #{4rem * math.cos($crease)}),
+          oklch(0 0 0 / 0.06) calc(var(--crease-at) + #{12rem * math.cos($crease)})
+        ),
+        linear-gradient(180deg + $crease, transparent var(--crease-at), var(--floor-tint) calc(var(--crease-at) + 1px));
+    }
+
+    .underlay {
+      background:
+        linear-gradient(var(--glow-angle), var(--wall-fade)),
+        linear-gradient(oklch(0 0 0 / 0.06), oklch(0 0 0 / 0.06)),
+        linear-gradient(color-mix(in srgb, var(--wall) 60%, transparent), color-mix(in srgb, var(--wall) 60%, transparent)),
+        var(--glow);
+    }
+
+    .intro {
+      max-width: none;
+    }
+
+    /* the two buttons share the row and fill it */
+    .links a {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .email-wrapper {
+      max-width: none;
+    }
+
+    #stage {
+      position: relative;
+      bottom: 0;
+      right: 0;
+      height: auto;
+      width: min(100%, 26rem);
+      margin: auto auto 0;
+    }
+  }
+</style>
