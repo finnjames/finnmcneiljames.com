@@ -20,9 +20,9 @@
   --font-weight-display: 450;
   // the empty space built into the left of every title-face glyph at that weight
   --title-bearing: 0.092em;
-  --font-sans: "SUSE Variable", system-ui, sans-serif;
-  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
-  --font-title: "OB-sys12", "Geist Mono Variable", ui-monospace, monospace;
+  --font-sans: "SUSE", system-ui, sans-serif;
+  --font-mono: "SUSE Mono", ui-monospace, monospace;
+  --font-title: "OB-sys12", "SUSE Mono", ui-monospace, monospace;
   --wght: var(--font-weight-normal);
   // colors
   // tells the browser which way to draw its own parts: scrollbars, form controls, the text caret
@@ -90,6 +90,8 @@ body {
   margin: 0;
   box-sizing: border-box;
   font-family: var(--font-sans);
+  // the floor for running text everywhere; only the monospaced labels and navigation are set smaller
+  font-size: 1.1rem;
   background-color: var(--bg);
   color: var(--fg);
   transition: background-color 320ms, color 320ms;
@@ -256,7 +258,9 @@ pre {
   border: 1px solid var(--line);
   border-radius: 0.4rem;
   background: color-mix(in oklab, var(--fg) 4%, var(--bg));
-  font-size: 0.85rem;
+  // named here, not only on the code inside, so browsers don't apply their smaller default size for bare `monospace`;
+  // SUSE Mono shares SUSE's x-height and cap height, so code at the inherited size matches the body text
+  font-family: var(--font-mono);
   line-height: 1.6;
   tab-size: 4;
   overflow-wrap: normal;

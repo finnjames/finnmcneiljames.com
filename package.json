@@ -13,8 +13,6 @@
   "dependencies": {
     "@astrojs/check": "^0.9.10",
     "@astrojs/markdown-remark": "^7.3.1",
-    "@fontsource-variable/geist-mono": "^5.3.0",
-    "@fontsource-variable/suse": "^5.3.0",
     "astro": "^7.3.5",
     "rehype-external-links": "^3.0.0"
   },

@@ -1,10 +1,4 @@
 ---
-import '@fontsource-variable/suse/index.css';
-import '@fontsource-variable/suse/wght-italic.css';
-import '@fontsource-variable/geist-mono/index.css';
-import '@fontsource-variable/geist-mono/wght-italic.css';
-// the file the body text is set in, which is the one worth fetching before the stylesheet asks for it
-import bodyFont from '@fontsource-variable/suse/files/suse-latin-wght-normal.woff2?url';
 import '../styles/global.scss';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -33,7 +27,12 @@ const {
     <title>{title ? `${title} — Finn James` : 'Finn James'}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=SUSE:ital,wght@0,100..800;1,100..800&family=SUSE+Mono:ital,wght@0,100..800;1,100..800&display=swap"
+    />
     {titleFont && (
       <link rel="preload" href="/fonts/OB-sys12-VF.woff2" as="font" type="font/woff2" crossorigin />
     )}
