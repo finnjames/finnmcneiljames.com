@@ -1,11 +1,15 @@
 ---
 // kept out of the source as plain text
 const email = Buffer.from('6865794066736a2e78797a', 'hex').toString();
+
+// the shape of the joint between two cells, which the styles below explain
+const jointPath =
+  'M-0.8778 -1.1876A1.31 1.31 0 0 0 0.8778 -1.1876L0.9381 -1.1208A1.51 1.51 0 0 0 0.9381 1.1208L0.8778 1.1876A1.31 1.31 0 0 0 -0.8778 1.1876L-0.9381 1.1208A1.51 1.51 0 0 0 -0.9381 -1.1208Z';
 ---
 
 <div id="email-container">
   <label id="email-label" class="label" for="email-input">email</label>
-  <svg class="joint" viewBox="-0.35 -1.1876 0.7 2.3753" aria-hidden="true"><path d="M-0.8778 -1.1876A1.31 1.31 0 0 0 0.8778 -1.1876L0.9381 -1.1208A1.51 1.51 0 0 0 0.9381 1.1208L0.8778 1.1876A1.31 1.31 0 0 0 -0.8778 1.1876L-0.9381 1.1208A1.51 1.51 0 0 0 -0.9381 -1.1208Z" /></svg>
+  <svg class="joint" viewBox="-0.35 -1.1876 0.7 2.3753" aria-hidden="true"><path d={jointPath} /></svg>
   <div id="address-wrapper">
     <input
       id="email-input"
@@ -17,7 +21,7 @@ const email = Buffer.from('6865794066736a2e78797a', 'hex').toString();
     />
   </div>
 
-  <svg class="joint" viewBox="-0.35 -1.1876 0.7 2.3753" aria-hidden="true"><path d="M-0.8778 -1.1876A1.31 1.31 0 0 0 0.8778 -1.1876L0.9381 -1.1208A1.51 1.51 0 0 0 0.9381 1.1208L0.8778 1.1876A1.31 1.31 0 0 0 -0.8778 1.1876L-0.9381 1.1208A1.51 1.51 0 0 0 -0.9381 -1.1208Z" /></svg>
+  <svg class="joint" viewBox="-0.35 -1.1876 0.7 2.3753" aria-hidden="true"><path d={jointPath} /></svg>
   <button
     id="copy"
     class="label"
@@ -59,7 +63,6 @@ const email = Buffer.from('6865794066736a2e78797a', 'hex').toString();
 
   #address-wrapper {
     display: flex;
-    flex: 0 1 auto;
     align-items: center;
     padding: 0 calc(var(--pad) - var(--stroke));
     min-width: 0;
@@ -152,12 +155,15 @@ const email = Buffer.from('6865794066736a2e78797a', 'hex').toString();
 
   input.addEventListener('focus', () => input.select());
 
-  button.addEventListener('click', () => {
+  button.addEventListener('click', async () => {
     input.select();
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(input.value);
-      label.textContent = 'Done';
-      window.setTimeout(() => (label.textContent = 'Copy'), 1600);
+    // the label only changes once the browser confirms the copy; a failed or unavailable copy leaves it as it is
+    try {
+      await navigator.clipboard.writeText(input.value);
+    } catch {
+      return;
     }
+    label.textContent = 'Done';
+    window.setTimeout(() => (label.textContent = 'Copy'), 1600);
   });
 </script>

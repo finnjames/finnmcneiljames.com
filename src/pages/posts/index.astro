@@ -1,22 +1,25 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { formatDate, getPosts } from '../../posts';
+import { formatDate, getPosts, isoDate } from '../../posts';
 
 const posts = await getPosts();
 ---
 
 <Base title="Posts">
-  <div class="page posts-page">
+  <div class="page column posts-page">
     <header class="page-head">
       <p class="label muted">{posts.length} {posts.length === 1 ? 'entry' : 'entries'}</p>
       <h1 class="display">Posts</h1>
     </header>
 
-    <ul class="posts">
+    <!-- the list role is spelled out because Safari drops it from lists without markers -->
+    <ul class="posts" role="list">
       {
         posts.map((post) => (
           <li>
-            <p class="label muted">{formatDate(post.data.date)}</p>
+            <p class="label muted">
+              <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+            </p>
             <h2>
               <a href={`/posts/${post.id}`}>{post.data.title}</a>
             </h2>
@@ -30,10 +33,7 @@ const posts = await getPosts();
 </Base>
 
 <style lang="scss">
-  /* a single reading column, the same width as a post */
   .posts-page {
-    max-width: calc(42rem + 2 * var(--gutter));
-    margin-inline: auto;
     padding-bottom: 2rem;
   }
 
@@ -67,7 +67,16 @@ const posts = await getPosts();
           opacity: 1;
           translate: 0 -50%;
         }
+
+        /* the row is now the opposite mode's ground, so the focus ring takes the opposite mode's accent */
+        a:focus-visible {
+          outline-color: var(--light-blue);
+        }
       }
+    }
+
+    :global([data-color-mode="dark"]) & li a:focus-visible {
+      outline-color: var(--blue);
     }
 
     /* slides in from the right as it fades up */

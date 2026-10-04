@@ -4,7 +4,6 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "astro dev",
-    "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "astro": "astro"
@@ -22,6 +21,7 @@
   "devDependencies": {
     "@types/node": "^20.17.19",
     "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^1.1.0",
     "sass": "^1.105.1",
     "typescript": "~6.0.2"
   }

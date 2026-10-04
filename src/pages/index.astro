@@ -1,9 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
 import EmailWidget from '../components/EmailWidget.astro';
+
+const links = [
+  { label: 'GitHub', href: 'https://github.com/finnjames' },
+  { label: 'Printables', href: 'https://www.printables.com/@finnjames' },
+];
 ---
 
 <Base footer={false}>
+  <!-- the illustration is a CSS background, which the browser would otherwise only find once the styles are in -->
+  <link slot="head" rel="preload" href="/images/writing-me.webp" as="image" type="image/webp" fetchpriority="high" />
   <div class="home">
     <section class="hero">
       <h1 class="visually-hidden">Finn James</h1>
@@ -12,7 +19,7 @@ import EmailWidget from '../components/EmailWidget.astro';
         <p class="display hey">Hey!</p>
 
         <p class="intro-p">
-          My name is <strong>Finn James</strong><span class="label muted">(he/him)</span>
+          My name is <strong>Finn James</strong><span class="label muted">&nbsp;(he/him)</span>
         </p>
 
         <p class="intro-p">
@@ -22,14 +29,14 @@ import EmailWidget from '../components/EmailWidget.astro';
         </p>
 
         <p class="links">
-          <a class="label" href="https://github.com/finnjames" target="_blank" rel="noopener">
-            GitHub
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 3H3v10h10V9.5M9.5 3H13v3.5M13 3 7.5 8.5" /></svg>
-          </a>
-          <a class="label" href="https://www.printables.com/@finnjames" target="_blank" rel="noopener">
-            Printables
-            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 3H3v10h10V9.5M9.5 3H13v3.5M13 3 7.5 8.5" /></svg>
-          </a>
+          {
+            links.map(({ label, href }) => (
+              <a class="label" href={href} target="_blank" rel="noopener">
+                {label}
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6.5 3H3v10h10V9.5M9.5 3H13v3.5M13 3 7.5 8.5" /></svg>
+              </a>
+            ))
+          }
         </p>
 
         <div class="email-wrapper">
@@ -52,6 +59,20 @@ import EmailWidget from '../components/EmailWidget.astro';
 
   /* how steeply the line between wall and floor climbs to the left */
   $crease: 20deg;
+
+  /* the shadow that wall and floor cast into the crease between them, positioned by the .floor rule's
+     --shadow-at and --crease-at. The wall's share, above the crease, is strong enough to still read through the
+     wall color where that covers it, to the left of the figure, but lighter than the floor at the crease so the
+     line between them stays crisp */
+  $crease-shadow: linear-gradient(
+    180deg + $crease,
+    transparent var(--shadow-at),
+    oklch(0 0 0 / 0.08) calc(var(--shadow-at) + #{4.95rem * math.cos($crease)}),
+    oklch(0 0 0 / 0.22) var(--crease-at),
+    oklch(0 0 0 / 0.45) calc(var(--crease-at) + 1px),
+    oklch(0 0 0 / 0.16) calc(var(--crease-at) + #{4rem * math.cos($crease)}),
+    oklch(0 0 0 / 0.06) calc(var(--crease-at) + #{12rem * math.cos($crease)})
+  );
 
   /* gradients can't be transitioned, but registered color properties can: the wall's two colors are animated
      instead, so the hero fades between color modes in step with the rest of the page */
@@ -170,7 +191,6 @@ import EmailWidget from '../components/EmailWidget.astro';
     right: 4vw;
     height: min(96svh, 75vw);
     aspect-ratio: 2 / 3;
-    user-select: none;
     pointer-events: none;
   }
 
@@ -190,17 +210,7 @@ import EmailWidget from '../components/EmailWidget.astro';
     left: -100vw;
     right: -100vw;
     z-index: -3;
-    background: linear-gradient(
-      180deg + $crease,
-      /* the wall's share of the shadow: strong enough to still read through the wall color where that covers it,
-         to the left of the figure, but lighter than the floor at the crease so the line between them stays crisp */
-      transparent var(--shadow-at),
-      oklch(0 0 0 / 0.08) calc(var(--shadow-at) + #{4.95rem * math.cos($crease)}),
-      oklch(0 0 0 / 0.22) var(--crease-at),
-      oklch(0 0 0 / 0.45) calc(var(--crease-at) + 1px),
-      oklch(0 0 0 / 0.16) calc(var(--crease-at) + #{4rem * math.cos($crease)}),
-      oklch(0 0 0 / 0.06) calc(var(--crease-at) + #{12rem * math.cos($crease)})
-    );
+    background: $crease-shadow;
   }
 
   #splash {
@@ -224,8 +234,11 @@ import EmailWidget from '../components/EmailWidget.astro';
 
   .intro-p {
     .label {
-      margin-left: 0.3em;
-      baseline-shift: 0.4rem;
+      /* the label opens with a space, so the name and pronouns are separate words when read aloud or copied. It
+         is a no-break space, which can't add a place for the line to wrap, and the margin takes back its width,
+         one monospace character and its letter-spacing, so the gap is still 0.3em */
+      margin-left: calc(0.3em - 1ch - 0.08em);
+      vertical-align: 0.4rem;
     }
 
     font-size: 1.3rem;
@@ -283,24 +296,17 @@ import EmailWidget from '../components/EmailWidget.astro';
 
     /* the figure sits below the text here, so the light falls from the right and pools low, beside the figure,
        leaving the text above it on the plain wall color */
+    /* the light now ends up strongest right where the floor is, so the floor is knocked back toward the wall
+       color by this tint */
     .hero,
     .underlay {
       --glow-angle: 120deg;
+      --floor-tint: color-mix(in srgb, var(--wall) 60%, transparent);
     }
 
-    /* the light now ends up strongest right where the floor is, so the floor is knocked back toward the wall color */
     .floor {
-      --floor-tint: color-mix(in srgb, var(--wall) 60%, transparent);
       background:
-        linear-gradient(
-          180deg + $crease,
-          transparent var(--shadow-at),
-          oklch(0 0 0 / 0.08) calc(var(--shadow-at) + #{4.95rem * math.cos($crease)}),
-          oklch(0 0 0 / 0.22) var(--crease-at),
-          oklch(0 0 0 / 0.45) calc(var(--crease-at) + 1px),
-          oklch(0 0 0 / 0.16) calc(var(--crease-at) + #{4rem * math.cos($crease)}),
-          oklch(0 0 0 / 0.06) calc(var(--crease-at) + #{12rem * math.cos($crease)})
-        ),
+        $crease-shadow,
         linear-gradient(180deg + $crease, transparent var(--crease-at), var(--floor-tint) calc(var(--crease-at) + 1px));
     }
 
@@ -308,7 +314,7 @@ import EmailWidget from '../components/EmailWidget.astro';
       background:
         linear-gradient(var(--glow-angle), var(--wall-fade)),
         linear-gradient(oklch(0 0 0 / 0.06), oklch(0 0 0 / 0.06)),
-        linear-gradient(color-mix(in srgb, var(--wall) 60%, transparent), color-mix(in srgb, var(--wall) 60%, transparent)),
+        linear-gradient(var(--floor-tint), var(--floor-tint)),
         var(--glow);
     }
 

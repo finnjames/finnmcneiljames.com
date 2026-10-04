@@ -9,7 +9,6 @@
 
 :root {
   // sizing
-  --breakpoint: 767px;
   --gutter: clamp(1rem, 3.5vw, 3rem);
   --header-h: 4.5rem;
   // the largest any heading gets: the size of the home page's "Hey!"
@@ -26,17 +25,21 @@
   --font-title: "OB-sys12", "Geist Mono Variable", ui-monospace, monospace;
   --wght: var(--font-weight-normal);
   // colors
+  // tells the browser which way to draw its own parts: scrollbars, form controls, the text caret
+  color-scheme: light;
   --black: oklch(0.1543 0 0);
   // the dark-mode ground: the very dark gray that the home page's dithered black comes out as
   --dark-gray: oklch(0.1785 0 0);
   --off-white: oklch(0.9583 0.007 88.64);
   --white: oklch(1 0 0);
   --blue: oklch(0.5573 0.2432 266.17);
-  // the lighter blue that links are set in; they darken to --blue on hover
+  // the lighter blue that stands in for --blue on dark grounds
   --light-blue: oklch(0.66 0.18 266.17);
   --bg: var(--off-white);
   --fg: var(--black);
   --accent: var(--blue);
+  // the accent as a text color: a shade darker than --blue, which is just short of readable at text sizes
+  --accent-text: oklch(0.52 0.2432 266.17);
   --code-value: oklch(0.5 0.1 223.1);
   --muted: color-mix(in oklab, var(--fg) 64%, var(--bg));
   --line: color-mix(in oklab, var(--fg) 18%, var(--bg));
@@ -55,10 +58,12 @@
   --font-weight-display: 400;
   --title-bearing: 0.1em;
   // colors
+  color-scheme: dark;
   --bg: var(--dark-gray);
   --fg: var(--off-white);
   // the electric blue, lifted so it holds up against black
   --accent: var(--light-blue);
+  --accent-text: var(--light-blue);
   --code-value: oklch(0.764 0.081 223.1);
 }
 
@@ -118,22 +123,14 @@ h4,
 h5,
 h6 {
   --wght: var(--font-weight-bold);
+  line-height: 1.15;
 }
 
-// 700 is the right bold for running text in this face; the heavier --font-weight-bold is for headings
+// 700 is the right bold for running text in this face; the heavier --font-weight-bold is for headings. It is set
+// through --wght like every other weight, so links and emphasis inside bold text are bold too
 strong,
 b {
-  font-weight: 700;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  position: relative;
-  line-height: 1.15;
+  --wght: 700;
 }
 
 // oversized headline type, the only place the title face is used
@@ -142,7 +139,6 @@ h6 {
   --wght: var(--font-weight-display);
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0;
   line-height: 0.86;
   // pulled left by the glyphs' built-in side bearing, so the letters themselves sit on the text margin
   translate: calc(-1 * var(--title-bearing)) 0;
@@ -177,13 +173,14 @@ h6 {
 }
 
 .prose a {
-  color: var(--light-blue);
+  color: var(--accent-text);
   text-decoration-thickness: 2px;
   text-underline-offset: 0.18em;
   transition: color 150ms linear;
 
+  // hovering pushes the link further from the ground: darker in light mode, lighter in dark
   &:hover {
-    color: var(--blue);
+    color: color-mix(in oklab, var(--accent-text) 70%, var(--fg));
   }
 
   &:active {
@@ -191,7 +188,13 @@ h6 {
   }
 }
 
-// post bodies are injected with innerHTML, so they are styled globally
+// a single reading column, centered on the page: the posts list and each post
+.column {
+  max-width: calc(42rem + 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+// post bodies are rendered from markdown, which a page's scoped styles don't reach, so they are styled globally
 .post-content {
   line-height: 1.65;
   overflow-wrap: anywhere;
@@ -280,11 +283,11 @@ pre {
   &.function,
   &.tag,
   &.selector {
-    color: var(--accent);
+    color: var(--accent-text);
   }
 
   &.tag .punctuation {
-    color: color-mix(in oklab, var(--accent) 60%, var(--bg));
+    color: color-mix(in oklab, var(--accent-text) 60%, var(--muted));
   }
 
   &.string,

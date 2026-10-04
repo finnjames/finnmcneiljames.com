@@ -1,67 +1,88 @@
 ---
+import { Image } from 'astro:assets';
 import Base from '../layouts/Base.astro';
+import aC1 from '../assets/art/a-c1.webp';
+import aC2 from '../assets/art/a-c2.webp';
+import aI1 from '../assets/art/a-i1.webp';
+import pC1 from '../assets/art/p-c1.webp';
+import pE1 from '../assets/art/p-e1.webp';
+import pE2 from '../assets/art/p-e2.webp';
+import pH1 from '../assets/art/p-h1.webp';
+import pT1 from '../assets/art/p-t1.webp';
+
+// how many of the grid's 12 columns each layout spans from the tablet breakpoint up; on phones every plate is full width
+const SPANS = { wide: 8, tall: 4, inset: 5, half: 5, spread: 10 };
 
 interface Plate {
-  src: string;
+  src: ImageMetadata;
   alt: string;
-  width: number;
-  height: number;
-  layout: string;
+  layout: keyof typeof SPANS;
 }
 
-const photography: Plate[] = [
-  { src: '/art/p-e2.webp', alt: 'Eszter 1', width: 1600, height: 1066, layout: 'wide' },
-  { src: '/art/p-c1.webp', alt: 'Coulture', width: 1069, height: 1602, layout: 'tall' },
-  { src: '/art/p-t1.webp', alt: 'Thomas', width: 1066, height: 1600, layout: 'tall' },
-  { src: '/art/p-h1.webp', alt: 'Hannah', width: 1500, height: 1000, layout: 'wide' },
-  { src: '/art/p-e1.webp', alt: 'Eszter 2', width: 1000, height: 1500, layout: 'inset' },
+// each section's plates are numbered from 01 behind its prefix
+const sections: { id: string; title: string; prefix: string; plates: Plate[] }[] = [
+  {
+    id: 'photography',
+    title: 'Photography',
+    prefix: 'P',
+    plates: [
+      { src: pE2, alt: 'Eszter 1', layout: 'wide' },
+      { src: pC1, alt: 'Coulture', layout: 'tall' },
+      { src: pT1, alt: 'Thomas', layout: 'tall' },
+      { src: pH1, alt: 'Hannah', layout: 'wide' },
+      { src: pE1, alt: 'Eszter 2', layout: 'inset' },
+    ],
+  },
+  {
+    id: 'drawing',
+    title: 'Drawing',
+    prefix: 'D',
+    plates: [
+      { src: aC1, alt: 'Charcoal drawing of my desk', layout: 'half' },
+      { src: aI1, alt: 'Ink drawing in the style of Mucha', layout: 'half' },
+      { src: aC2, alt: 'Charcoal drawings with a backlight', layout: 'spread' },
+    ],
+  },
 ];
+const plateCount = sections.reduce((count, section) => count + section.plates.length, 0);
 
-const drawing: Plate[] = [
-  { src: '/art/a-c1.webp', alt: 'Charcoal drawing of my desk', width: 1334, height: 1600, layout: 'half' },
-  { src: '/art/a-i1.webp', alt: 'Ink drawing in the style of Mucha', width: 1032, height: 1600, layout: 'half' },
-  { src: '/art/a-c2.webp', alt: 'Charcoal drawings with a backlight', width: 1600, height: 800, layout: 'spread' },
-];
+// each plate is built at a few widths, never larger than the original, and the browser picks one to suit the
+// space the plate takes up on screen
+const widths = (plate: Plate) => [...[480, 800, 1200].filter((width) => width < plate.src.width), plate.src.width];
+const sizes = (plate: Plate) => `(max-width: 767px) 100vw, ${Math.round((SPANS[plate.layout] / 12) * 100)}vw`;
 ---
 
 <Base title="Portfolio">
   <div id="portfolio" class="page">
     <header class="page-head">
-      <p class="label muted">{photography.length + drawing.length} plates</p>
+      <p class="label muted">{plateCount} plates</p>
       <h1 class="display">Portfolio</h1>
     </header>
 
-    <section>
-      <h2 id="photography" class="display">Photography</h2>
-      <div class="plates">
-        {
-          photography.map((plate, i) => (
-            <figure class={plate.layout}>
-              <img loading="lazy" alt={plate.alt} src={plate.src} width={plate.width} height={plate.height} />
-              <figcaption class="label">
-                <span class="muted">P—0{i + 1}</span> {plate.alt}
-              </figcaption>
-            </figure>
-          ))
-        }
-      </div>
-    </section>
-
-    <section>
-      <h2 id="drawing" class="display">Drawing</h2>
-      <div class="plates">
-        {
-          drawing.map((plate, i) => (
-            <figure class={plate.layout}>
-              <img loading="lazy" alt={plate.alt} src={plate.src} width={plate.width} height={plate.height} />
-              <figcaption class="label">
-                <span class="muted">D—0{i + 1}</span> {plate.alt}
-              </figcaption>
-            </figure>
-          ))
-        }
-      </div>
-    </section>
+    {
+      sections.map(({ id, title, prefix, plates }, s) => (
+        <section>
+          <h2 id={id} class="display">{title}</h2>
+          <div class="plates">
+            {plates.map((plate, i) => (
+              <figure class={plate.layout}>
+                {/* the very first plate is on screen when the page opens, so it alone loads eagerly */}
+                <Image
+                  src={plate.src}
+                  alt={plate.alt}
+                  widths={widths(plate)}
+                  sizes={sizes(plate)}
+                  priority={s === 0 && i === 0}
+                />
+                <figcaption class="label">
+                  <span class="muted">{prefix}—0{i + 1}</span> {plate.alt}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      ))
+    }
   </div>
 </Base>
 

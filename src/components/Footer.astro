@@ -1,7 +1,3 @@
----
-
----
-
 <footer class="label prose">
   <span>Finn James</span>
   <span>
@@ -24,13 +20,11 @@
     color: var(--muted);
 
     a {
-      color: inherit;
       /* matches the text until hovered, then picks up the accent */
-      text-decoration-color: currentColor;
-      transition: color 150ms linear, text-decoration-color 150ms linear;
+      color: inherit;
 
       &:hover {
-        color: var(--accent);
+        color: var(--accent-text);
       }
     }
   }

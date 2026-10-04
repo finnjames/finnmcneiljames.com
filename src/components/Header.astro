@@ -2,6 +2,14 @@
 const { pathname } = Astro.url;
 // the home link only matches the home page; the others also match the pages beneath them
 const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname === path || pathname.startsWith(`${path}/`));
+
+// numbered in order. The home link is only listed in the phone menu; elsewhere the logo does its job
+const links = [
+  { href: '/', label: 'Home', mobileOnly: true },
+  { href: '/cv', label: 'CV' },
+  { href: '/posts', label: 'Posts' },
+  { href: '/portfolio', label: 'Portfolio' },
+];
 ---
 
 <div class="site-header">
@@ -11,38 +19,18 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
     </a>
     <nav id="site-nav" aria-label="Main">
       <div class="nav-container" id="nav-links">
-        <a
-          class:list={['nav-item', 'mobile-only', { active: isActive('/') }]}
-          href="/"
-          aria-current={isActive('/') ? 'page' : undefined}
-        >
-          <span class="label num" aria-hidden="true">00</span>
-          Home
-        </a>
-        <a
-          class:list={['nav-item', 'desktop', { active: isActive('/cv') }]}
-          href="/cv"
-          aria-current={isActive('/cv') ? 'page' : undefined}
-        >
-          <span class="label num" aria-hidden="true">01</span>
-          CV
-        </a>
-        <a
-          class:list={['nav-item', 'desktop', { active: isActive('/posts') }]}
-          href="/posts"
-          aria-current={isActive('/posts') ? 'page' : undefined}
-        >
-          <span class="label num" aria-hidden="true">02</span>
-          Posts
-        </a>
-        <a
-          class:list={['nav-item', 'desktop', { active: isActive('/portfolio') }]}
-          href="/portfolio"
-          aria-current={isActive('/portfolio') ? 'page' : undefined}
-        >
-          <span class="label num" aria-hidden="true">03</span>
-          Portfolio
-        </a>
+        {
+          links.map(({ href, label, mobileOnly }, i) => (
+            <a
+              class:list={['nav-item', { 'mobile-only': mobileOnly, active: isActive(href) }]}
+              href={href}
+              aria-current={isActive(href) ? 'page' : undefined}
+            >
+              <span class="label num" aria-hidden="true">{String(i).padStart(2, '0')}</span>
+              {label}
+            </a>
+          ))
+        }
       </div>
     </nav>
     <button
@@ -57,6 +45,12 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
         <span class="moon"></span>
       </span>
     </button>
+    <!-- runs as soon as the switch exists, so it never reports the wrong state while the page loads -->
+    <script is:inline>
+      document
+        .getElementById("color-mode-toggle")
+        .setAttribute("aria-checked", String(document.documentElement.getAttribute("data-color-mode") === "dark"));
+    </script>
     <button
       id="menu-icon"
       class="label"
@@ -69,12 +63,64 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
   </header>
 </div>
 
+<!-- without scripts the menu button can't open anything, so on phones the links sit in a second row of the header -->
+<noscript>
+  <style is:inline>
+    @media screen and (max-width: 767px) {
+      :root {
+        --header-h: 7rem;
+      }
+
+      #header {
+        flex-wrap: wrap;
+        align-content: center;
+        row-gap: 0;
+      }
+
+      #menu-icon {
+        display: none;
+      }
+
+      #site-nav {
+        order: 1;
+        width: 100%;
+      }
+
+      #nav-links {
+        position: static;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 1.2rem;
+        padding: 0;
+        background: none;
+        visibility: visible;
+        opacity: 1;
+      }
+
+      #nav-links .nav-item {
+        width: auto;
+        padding: 0.4rem 0;
+        border-top: none;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        letter-spacing: 0.08em;
+        transform: none;
+        --wght: 500;
+      }
+
+      #nav-links .nav-item .num {
+        display: none;
+      }
+    }
+  </style>
+</noscript>
+
 <style lang="scss">
   .site-header {
     position: sticky;
     top: 0;
     z-index: 10;
-    display: block;
   }
 
   #header {
@@ -98,7 +144,30 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
     }
   }
 
+  /* the logo and the nav links share an underline that fades in on hover */
+  #logo,
+  .nav-item {
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: var(--underline-at);
+      height: 2px;
+      background: var(--fg);
+      opacity: 0;
+      transition: opacity 200ms;
+    }
+
+    &:hover::after {
+      opacity: 1;
+    }
+  }
+
   #logo {
+    --underline-at: -0.3rem;
     touch-action: manipulation;
     margin-right: auto;
     color: var(--fg);
@@ -115,24 +184,6 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
     }
     display: inline-block;
     line-height: 1;
-    position: relative;
-
-    /* the same underline the nav links draw on hover */
-    &::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -0.3rem;
-      height: 2px;
-      background: var(--fg);
-      opacity: 0;
-      transition: opacity 200ms;
-    }
-
-    &:hover::after {
-      opacity: 1;
-    }
 
     /* on the smallest phones the name shrinks just enough to fit beside the toggle and menu button */
     @media (max-width: 767px) {
@@ -157,6 +208,7 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
   .nav-item {
     font-family: var(--font-mono);
     --wght: 500;
+    --underline-at: 0.3rem;
     touch-action: manipulation;
     display: flex;
     align-items: baseline;
@@ -167,7 +219,6 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
     text-transform: uppercase;
     text-decoration: none;
     color: var(--fg);
-    position: relative;
 
     &.mobile-only {
       display: none;
@@ -177,19 +228,6 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
       color: var(--muted);
     }
 
-    &::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0.3rem;
-      height: 2px;
-      background: var(--fg);
-      opacity: 0;
-      transition: opacity 200ms;
-    }
-
-    &:hover::after,
     &.active::after {
       opacity: 1;
     }
@@ -239,9 +277,9 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
       box-shadow: 0 0 0.4rem 0.15rem var(--white), 0 0 1.1rem 0.4rem oklch(1 0 0 / 0.75);
     }
 
-    /* the photo has margins around the disc, so it is scaled up until the disc fills the circle */
+    /* the photo is cropped to the disc, so it fills the circle edge to edge */
     .moon {
-      background: url("/images/moon.webp") center / auto 110% no-repeat;
+      background: url("/images/moon.webp") center / cover no-repeat;
       /* a wide, faint, bluish haze */
       box-shadow: 0 0 0.9rem 0.1rem oklch(0.82 0.06 240 / 0.28);
       opacity: 0;
@@ -283,6 +321,11 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
   @media screen and (max-width: 767px) {
     #menu-icon {
       display: block;
+    }
+
+    /* the open menu covers the page, so the page behind it doesn't scroll */
+    :global(html.menu-open) {
+      overflow: hidden;
     }
 
     .nav-container {
@@ -369,10 +412,9 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
     toggle.setAttribute('aria-checked', String(mode === 'dark'));
   }
 
-  // what is stored: an explicit mode only when it differs from the system's
+  // what is stored: an explicit mode only when it differs from the system's. The mode itself is already applied
+  // by the inline scripts in the head and beside the switch
   let preference = stored();
-  apply(preference === 'system' ? systemMode() : preference);
-  persist(preference);
 
   toggle.addEventListener('click', () => {
     const mode: ColorMode = root.getAttribute('data-color-mode') === 'dark' ? 'light' : 'dark';
@@ -391,9 +433,38 @@ const isActive = (path: string) => (path === '/' ? pathname === '/' : pathname =
   const nav = document.querySelector<HTMLElement>('#site-nav')!;
   const menuButton = document.querySelector<HTMLButtonElement>('#menu-icon')!;
 
-  menuButton.addEventListener('click', () => {
-    const open = nav.classList.toggle('active');
+  // everything the open menu covers; the header's own controls stay in reach above it
+  const covered = document.querySelectorAll<HTMLElement>('main, .skip-link');
+  const mobileQuery = window.matchMedia('(max-width: 767px)');
+
+  function setMenu(open: boolean): void {
+    nav.classList.toggle('active', open);
+    root.classList.toggle('menu-open', open);
     menuButton.setAttribute('aria-expanded', String(open));
     menuButton.textContent = open ? 'Close' : 'Menu';
+    covered.forEach((element) => (element.inert = open));
+  }
+
+  menuButton.addEventListener('click', () => {
+    const open = !nav.classList.contains('active');
+    setMenu(open);
+    // the button comes after the links, so focus is handed to the first of them rather than left behind
+    if (open) {
+      nav.querySelector<HTMLAnchorElement>('.nav-item')!.focus();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && nav.classList.contains('active')) {
+      setMenu(false);
+      menuButton.focus();
+    }
+  });
+
+  // the menu only exists at phone widths; if the window outgrows it, the page is released again
+  mobileQuery.addEventListener('change', () => {
+    if (!mobileQuery.matches) {
+      setMenu(false);
+    }
   });
 </script>

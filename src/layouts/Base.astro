@@ -1,6 +1,10 @@
 ---
 import '@fontsource-variable/suse/index.css';
+import '@fontsource-variable/suse/wght-italic.css';
 import '@fontsource-variable/geist-mono/index.css';
+import '@fontsource-variable/geist-mono/wght-italic.css';
+// the file the body text is set in, which is the one worth fetching before the stylesheet asks for it
+import bodyFont from '@fontsource-variable/suse/files/suse-latin-wght-normal.woff2?url';
 import '../styles/global.scss';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
@@ -10,9 +14,16 @@ interface Props {
   title?: string;
   description?: string;
   footer?: boolean;
+  /** Whether the page sets anything in the title face on arrival, and so should fetch it early. */
+  titleFont?: boolean;
 }
 
-const { title, description = 'I’m Finn, a software engineer & artist.', footer = true } = Astro.props;
+const {
+  title,
+  description = 'I’m Finn, a software engineer & artist.',
+  footer = true,
+  titleFont = true,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -22,29 +33,51 @@ const { title, description = 'I’m Finn, a software engineer & artist.', footer
     <title>{title ? `${title} — Finn James` : 'Finn James'}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <link rel="preload" href="/fonts/OB-sys12-VF.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="preload" href={bodyFont} as="font" type="font/woff2" crossorigin />
+    {titleFont && (
+      <link rel="preload" href="/fonts/OB-sys12-VF.woff2" as="font" type="font/woff2" crossorigin />
+    )}
+    <slot name="head" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <!-- Google tag (gtag.js) -->
+    <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-XRLEG6433K"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag('js', new Date());
+
+      gtag('config', 'G-XRLEG6433K');
+    </script>
     <!-- runs before the first paint, so the page never flashes the wrong color mode -->
     <script is:inline>
       (function () {
         function getInitialColorMode() {
           try {
-            var persistedColorMode = window.localStorage.getItem("color-mode");
-            if (persistedColorMode === "dark" || persistedColorMode === "light") return persistedColorMode;
-            if (window.matchMedia("(prefers-color-scheme: dark)").matches) return "dark";
+            var persistedColorMode = window.localStorage.getItem('color-mode');
+            if (persistedColorMode === 'dark' || persistedColorMode === 'light')
+              return persistedColorMode;
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
           } catch (e) {}
-          return "light";
+          return 'light';
         }
         var colorMode = getInitialColorMode();
-        document.documentElement.setAttribute("data-color-mode", colorMode);
+        document.documentElement.setAttribute('data-color-mode', colorMode);
       })();
     </script>
   </head>
   <body>
+    <a class="skip-link label" href="#main">
+      Skip to content
+    </a>
     <div class="container">
       <Header />
-      <main>
+      <main id="main">
         <div class="content-area">
           <slot />
         </div>
@@ -55,11 +88,28 @@ const { title, description = 'I’m Finn, a software engineer & artist.', footer
 </html>
 
 <style lang="scss">
+  /* out of sight until it is reached with the keyboard, then it drops in over the header */
+  .skip-link {
+    position: fixed;
+    top: 0.6rem;
+    left: var(--gutter);
+    z-index: 20;
+    padding: 0.8rem 1.2rem;
+    border-radius: 1.6rem;
+    background: var(--fg);
+    color: var(--bg);
+    text-decoration: none;
+    translate: 0 calc(-100% - 1.2rem);
+
+    &:focus {
+      translate: none;
+    }
+  }
+
   .container {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    width: 100%;
   }
 
   main {

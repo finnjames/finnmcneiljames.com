@@ -1,6 +1,6 @@
 ---
 title: Aerox 3 Daemon
-date: 2022-06-23
+date: 2022-06-24
 snippet: How to make a SteelSeries Aerox 3 Mouse Remember LED Colors
 ---
 

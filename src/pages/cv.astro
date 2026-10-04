@@ -27,7 +27,7 @@ const bars = barcodePattern.flatMap((width, i) =>
             <div class="route">
               <div>
                 <p class="label muted">From</p>
-                <p class="display code">LGA</p>
+                <p class="display code">RDU</p>
               </div>
               <svg class="plane" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -37,7 +37,7 @@ const bars = barcodePattern.flatMap((width, i) =>
               </svg>
               <div>
                 <p class="label muted">To</p>
-                <p class="display code">RDU</p>
+                <p class="display code">LGA</p>
               </div>
             </div>
             <dl>
@@ -215,8 +215,7 @@ const bars = barcodePattern.flatMap((width, i) =>
         <div class="entry">
           <h3>Computer Science</h3>
           <p>
-            <strong>Proficient in:</strong> Python, C, Java, TypeScript, Vue, JavaScript, SystemVerilog,
-            <span title="source for this site on GitHub">HTML/CSS</span>
+            <strong>Proficient in:</strong> Python, C, Java, TypeScript, Vue, JavaScript, SystemVerilog, HTML/CSS
           </p>
           <p>
             <strong>Courses Completed by Summer 2022:</strong> Algorithms, Cryptography, Digital Logic & Computer Design, Models of Language & Computation, Data Structures, Computer Architecture, Digital Photography, Modern Web Development, UX Design & Usability
@@ -479,7 +478,7 @@ const bars = barcodePattern.flatMap((width, i) =>
   section {
     display: grid;
     /* wide enough for the longest one-word heading, "Publications" */
-      grid-template-columns: minmax(14.5rem, 1fr) 3fr;
+    grid-template-columns: minmax(14.5rem, 1fr) 3fr;
     gap: 1rem var(--gutter);
     padding: 1.2rem 0 clamp(2rem, 5vw, 4rem);
     border-top: 1px solid var(--fg);
@@ -528,7 +527,11 @@ const bars = barcodePattern.flatMap((width, i) =>
   h3, h4 {
     margin: 0.3rem 0 0.5rem;
     font-size: 1.25rem;
-    letter-spacing: 0;
+  }
+
+  /* the part of an entry's title that is set at the text weight, beside the bold part */
+  .roman {
+    --wght: var(--font-weight-normal);
   }
 
   .entry p:not(.label) {
@@ -539,11 +542,6 @@ const bars = barcodePattern.flatMap((width, i) =>
     &:last-child {
       margin-bottom: 0;
     }
-  }
-
-  .updated-text {
-    padding-top: 1.2rem;
-    border-top: 1px solid var(--fg);
   }
 
   /* below this width the ticket no longer fits beside the title, so only its date is kept */

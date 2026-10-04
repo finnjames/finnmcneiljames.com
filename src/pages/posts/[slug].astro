@@ -1,7 +1,7 @@
 ---
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
-import { formatDate, getPosts } from '../../posts';
+import { formatDate, getPosts, isoDate } from '../../posts';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -12,10 +12,12 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<Base title={post.data.title} description={post.data.snippet}>
-  <article class="page post-article">
+<Base title={post.data.title} description={post.data.snippet} titleFont={false}>
+  <article class="page column post-article">
     <a href="/posts" class="label back-link">← All Posts</a>
-    <p class="label muted post-date">{formatDate(post.data.date)}</p>
+    <p class="label muted">
+      <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+    </p>
     <h1 class="post-title">{post.data.title}</h1>
     <div class="post-content prose">
       <Content />
@@ -24,10 +26,7 @@ const { Content } = await render(post);
 </Base>
 
 <style lang="scss">
-  /* a single reading column, centered on the page */
   .post-article {
-    max-width: calc(42rem + 2 * var(--gutter));
-    margin-inline: auto;
     padding-bottom: 3rem;
   }
 
