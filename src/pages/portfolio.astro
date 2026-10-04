@@ -1,0 +1,168 @@
+---
+import { Image } from 'astro:assets';
+import Base from '../layouts/Base.astro';
+import aC1 from '../assets/art/a-c1.webp';
+import aC2 from '../assets/art/a-c2.webp';
+import aI1 from '../assets/art/a-i1.webp';
+import pC1 from '../assets/art/p-c1.webp';
+import pE1 from '../assets/art/p-e1.webp';
+import pE2 from '../assets/art/p-e2.webp';
+import pH1 from '../assets/art/p-h1.webp';
+import pT1 from '../assets/art/p-t1.webp';
+
+// how many of the grid's 12 columns each layout spans from the tablet breakpoint up; on phones every plate is full width
+const SPANS = { wide: 8, tall: 4, inset: 5, half: 5, spread: 10 };
+
+interface Plate {
+  src: ImageMetadata;
+  alt: string;
+  layout: keyof typeof SPANS;
+}
+
+// each section's plates are numbered from 01 behind its prefix
+const sections: { id: string; title: string; prefix: string; plates: Plate[] }[] = [
+  {
+    id: 'photography',
+    title: 'Photography',
+    prefix: 'P',
+    plates: [
+      { src: pE2, alt: 'Eszter 1', layout: 'wide' },
+      { src: pC1, alt: 'Coulture', layout: 'tall' },
+      { src: pT1, alt: 'Thomas', layout: 'tall' },
+      { src: pH1, alt: 'Hannah', layout: 'wide' },
+      { src: pE1, alt: 'Eszter 2', layout: 'inset' },
+    ],
+  },
+  {
+    id: 'drawing',
+    title: 'Drawing',
+    prefix: 'D',
+    plates: [
+      { src: aC1, alt: 'Charcoal drawing of my desk', layout: 'half' },
+      { src: aI1, alt: 'Ink drawing in the style of Mucha', layout: 'half' },
+      { src: aC2, alt: 'Charcoal drawings with a backlight', layout: 'spread' },
+    ],
+  },
+];
+const plateCount = sections.reduce((count, section) => count + section.plates.length, 0);
+
+// each plate is built at a few widths, never larger than the original, and the browser picks one to suit the
+// space the plate takes up on screen
+const widths = (plate: Plate) => [...[480, 800, 1200].filter((width) => width < plate.src.width), plate.src.width];
+const sizes = (plate: Plate) => `(max-width: 767px) 100vw, ${Math.round((SPANS[plate.layout] / 12) * 100)}vw`;
+---
+
+<Base title="Portfolio">
+  <div id="portfolio" class="page">
+    <header class="page-head">
+      <p class="label muted">{plateCount} plates</p>
+      <h1 class="display">Portfolio</h1>
+    </header>
+
+    {
+      sections.map(({ id, title, prefix, plates }, s) => (
+        <section>
+          <h2 id={id} class="display">{title}</h2>
+          <div class="plates">
+            {plates.map((plate, i) => (
+              <figure class={plate.layout}>
+                {/* the very first plate is on screen when the page opens, so it alone loads eagerly */}
+                <Image
+                  src={plate.src}
+                  alt={plate.alt}
+                  widths={widths(plate)}
+                  sizes={sizes(plate)}
+                  priority={s === 0 && i === 0}
+                />
+                <figcaption class="label">
+                  <span class="muted">{prefix}—0{i + 1}</span> {plate.alt}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+</Base>
+
+<style lang="scss">
+  #portfolio {
+    padding-bottom: 3rem;
+  }
+
+  h2 {
+    margin: clamp(3rem, 8vw, 7rem) 0 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--fg);
+    /* section titles stay clearly below the page title */
+    font-size: clamp(1.6rem, 7vw, 4rem);
+    /* the rule above the title must stay on the margin, so only the letters are pulled left here */
+    translate: none;
+    text-indent: calc(-1 * var(--title-bearing));
+  }
+
+  /* the first section sits straight under the page title */
+  section:first-of-type h2 {
+    margin-top: 0;
+  }
+
+  .plates {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: clamp(2rem, 5vw, 5rem) var(--gutter);
+    align-items: end;
+  }
+
+  figure {
+    margin: 0;
+    grid-column: span 12;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 92vh;
+    object-fit: contain;
+    object-position: left bottom;
+  }
+
+  figcaption {
+    display: flex;
+    gap: 0.8rem;
+    margin-top: 0.7rem;
+  }
+
+  /* the plate number stays in one piece; a long title wraps beside it instead */
+  figcaption .muted {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  @media screen and (min-width: 768px) {
+    .wide {
+      grid-column: span 8;
+    }
+
+    .tall {
+      grid-column: span 4;
+    }
+
+    .inset {
+      grid-column: 4 / span 5;
+    }
+
+    .half {
+      grid-column: span 5;
+    }
+
+    .half + .half {
+      grid-column: 8 / span 4;
+    }
+
+    .spread {
+      grid-column: 2 / span 10;
+    }
+  }
+</style>

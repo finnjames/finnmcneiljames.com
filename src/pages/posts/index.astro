@@ -1,0 +1,125 @@
+---
+import Base from '../../layouts/Base.astro';
+import { formatDate, getPosts, isoDate } from '../../posts';
+
+const posts = await getPosts();
+---
+
+<Base title="Posts">
+  <div class="page column posts-page">
+    <header class="page-head">
+      <p class="label muted">{posts.length} {posts.length === 1 ? 'entry' : 'entries'}</p>
+      <h1 class="display">Posts</h1>
+    </header>
+
+    <!-- the list role is spelled out because Safari drops it from lists without markers -->
+    <ul class="posts" role="list">
+      {
+        posts.map((post) => (
+          <li>
+            <p class="label muted">
+              <time datetime={isoDate(post.data.date)}>{formatDate(post.data.date)}</time>
+            </p>
+            <h2>
+              <a href={`/posts/${post.id}`}>{post.data.title}</a>
+            </h2>
+            <p class="snippet">{post.data.snippet}</p>
+            <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h17M13 5l7 7-7 7" /></svg>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>
+
+<style lang="scss">
+  .posts-page {
+    padding-bottom: 2rem;
+  }
+
+  .page-head h1 {
+    font-size: min(clamp(2.5rem, 9vw, 6rem), var(--title-max));
+  }
+
+  .posts {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid var(--fg);
+
+    li {
+      padding: 1.2rem 0;
+      border-top: 1px solid var(--fg);
+      position: relative;
+      transition: padding 300ms cubic-bezier(0, 0.62, 0.34, 1), background-color 200ms, color 200ms;
+
+      &:hover,
+      &:focus-within {
+        padding-inline: 1rem;
+        background: var(--fg);
+        color: var(--bg);
+
+        .muted {
+          color: inherit;
+        }
+
+        .arrow {
+          opacity: 1;
+          translate: 0 -50%;
+        }
+
+        /* the row is now the opposite mode's ground, so the focus ring takes the opposite mode's accent */
+        a:focus-visible {
+          outline-color: var(--light-blue);
+        }
+      }
+    }
+
+    :global([data-color-mode="dark"]) & li a:focus-visible {
+      outline-color: var(--blue);
+    }
+
+    /* slides in from the right as it fades up */
+    .arrow {
+      position: absolute;
+      top: 50%;
+      right: 1.2rem;
+      width: 2rem;
+      height: 2rem;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      opacity: 0;
+      translate: 1.2rem -50%;
+      pointer-events: none;
+      transition: opacity 250ms, translate 300ms cubic-bezier(0, 0.62, 0.34, 1);
+    }
+
+    h2,
+    .snippet {
+      padding-right: 3.5rem;
+    }
+
+    h2 {
+      margin: 0.35rem 0 0;
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      letter-spacing: -0.02em;
+
+      a {
+        color: inherit;
+        text-decoration: none;
+
+        /* stretch the link over the whole row */
+        &::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+        }
+      }
+    }
+
+    .snippet {
+      margin: 0.3rem 0 0;
+    }
+  }
+</style>

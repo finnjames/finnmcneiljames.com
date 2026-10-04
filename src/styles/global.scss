@@ -1,0 +1,316 @@
+@font-face {
+  font-family: "OB-sys12";
+  font-style: oblique 0deg 10deg;
+  font-weight: 300 500;
+  font-stretch: 70% 130%;
+  font-display: swap;
+  src: url("/fonts/OB-sys12-VF.woff2") format("woff2");
+}
+
+:root {
+  // sizing
+  --gutter: clamp(1rem, 3.5vw, 3rem);
+  --header-h: 4.5rem;
+  // the largest any heading gets: the size of the home page's "Hey!"
+  --title-max: 7.5rem;
+  // fonts
+  --font-weight-normal: 400;
+  --font-weight-bold: 800;
+  // the title face runs 300–500; dark text on a light ground reads thinner, so it gets a little more weight
+  --font-weight-display: 450;
+  // the empty space built into the left of every title-face glyph at that weight
+  --title-bearing: 0.092em;
+  --font-sans: "SUSE Variable", system-ui, sans-serif;
+  --font-mono: "Geist Mono Variable", ui-monospace, monospace;
+  --font-title: "OB-sys12", "Geist Mono Variable", ui-monospace, monospace;
+  --wght: var(--font-weight-normal);
+  // colors
+  // tells the browser which way to draw its own parts: scrollbars, form controls, the text caret
+  color-scheme: light;
+  --black: oklch(0.1543 0 0);
+  // the dark-mode ground: the very dark gray that the home page's dithered black comes out as
+  --dark-gray: oklch(0.1785 0 0);
+  --off-white: oklch(0.9583 0.007 88.64);
+  --white: oklch(1 0 0);
+  --blue: oklch(0.5573 0.2432 266.17);
+  // the lighter blue that stands in for --blue on dark grounds
+  --light-blue: oklch(0.66 0.18 266.17);
+  --bg: var(--off-white);
+  --fg: var(--black);
+  --accent: var(--blue);
+  // the accent as a text color: a shade darker than --blue, which is just short of readable at text sizes
+  --accent-text: oklch(0.52 0.2432 266.17);
+  --code-value: oklch(0.5 0.1 223.1);
+  --muted: color-mix(in oklab, var(--fg) 64%, var(--bg));
+  --line: color-mix(in oklab, var(--fg) 18%, var(--bg));
+}
+
+@media screen and (max-width: 767px) {
+  :root {
+    --title-max: 4rem;
+  }
+}
+
+[data-color-mode="dark"] {
+  // fonts
+  --font-weight-normal: 350;
+  --font-weight-bold: 750;
+  --font-weight-display: 400;
+  --title-bearing: 0.1em;
+  // colors
+  color-scheme: dark;
+  --bg: var(--dark-gray);
+  --fg: var(--off-white);
+  // the electric blue, lifted so it holds up against black
+  --accent: var(--light-blue);
+  --accent-text: var(--light-blue);
+  --code-value: oklch(0.764 0.081 223.1);
+}
+
+html {
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+  // stop iOS Safari from inflating text when the phone is turned sideways
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+// form controls don't inherit type from the page by default
+button,
+input {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: 1.15;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  box-sizing: border-box;
+  font-family: var(--font-sans);
+  background-color: var(--bg);
+  color: var(--fg);
+  transition: background-color 320ms, color 320ms;
+  line-height: 1.5;
+  position: relative;
+  overflow-x: hidden;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+  // weight is driven by a custom property so it inherits through every element
+  font-weight: var(--wght);
+}
+
+::selection {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  --wght: var(--font-weight-bold);
+  line-height: 1.15;
+}
+
+// 700 is the right bold for running text in this face; the heavier --font-weight-bold is for headings. It is set
+// through --wght like every other weight, so links and emphasis inside bold text are bold too
+strong,
+b {
+  --wght: 700;
+}
+
+// oversized headline type, the only place the title face is used
+.display {
+  font-family: var(--font-title);
+  --wght: var(--font-weight-display);
+  margin: 0;
+  text-transform: uppercase;
+  line-height: 0.86;
+  // pulled left by the glyphs' built-in side bearing, so the letters themselves sit on the text margin
+  translate: calc(-1 * var(--title-bearing)) 0;
+}
+
+// small monospaced metadata
+.label {
+  font-family: var(--font-mono);
+  --wght: 500;
+  margin: 0;
+  // the smallest monospace size used anywhere on the site
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.page {
+  padding: 0 var(--gutter);
+}
+
+.page-head {
+  padding: clamp(2rem, 6vw, 5rem) 0 clamp(1.5rem, 4vw, 3rem);
+
+  h1 {
+    margin-top: 0.8rem;
+    font-size: min(clamp(2.5rem, 14vw, 16rem), var(--title-max));
+  }
+}
+
+.prose a {
+  color: var(--accent-text);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+  transition: color 150ms linear;
+
+  // hovering pushes the link further from the ground: darker in light mode, lighter in dark
+  &:hover {
+    color: color-mix(in oklab, var(--accent-text) 70%, var(--fg));
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+}
+
+// a single reading column, centered on the page: the posts list and each post
+.column {
+  max-width: calc(42rem + 2 * var(--gutter));
+  margin-inline: auto;
+}
+
+// post bodies are rendered from markdown, which a page's scoped styles don't reach, so they are styled globally
+.post-content {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+
+  p {
+    margin: 0 0 1.2rem;
+  }
+
+  h2 {
+    margin: 2.6rem 0 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+
+    &:first-child {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+  }
+
+  h3 {
+    margin: 1.5rem 0 0.6rem;
+  }
+
+  h4 {
+    margin: 1.2rem 0 0.5rem;
+  }
+
+  ol, ul {
+    margin: 0 0 1.2rem;
+    padding-left: 1.5rem;
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+code {
+  font-family: var(--font-mono) !important;
+
+  &:not(code[class*="language-"]) {
+    padding: 0.1rem 0.24rem;
+    background: var(--line) !important;
+    border-radius: 0.2rem;
+  }
+}
+
+pre {
+  max-width: 100%;
+  margin: 0 0 1.2rem;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 0.4rem;
+  background: color-mix(in oklab, var(--fg) 4%, var(--bg));
+  font-size: 0.85rem;
+  line-height: 1.6;
+  tab-size: 4;
+  overflow-wrap: normal;
+}
+
+// syntax theme: the site's blue for structure, the illustration's edge-light blue for values
+.token {
+  &.comment,
+  &.prolog,
+  &.doctype,
+  &.cdata,
+  &.shebang {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  &.punctuation,
+  &.operator {
+    color: var(--muted);
+  }
+
+  &.keyword,
+  &.builtin,
+  &.function,
+  &.tag,
+  &.selector {
+    color: var(--accent-text);
+  }
+
+  &.tag .punctuation {
+    color: color-mix(in oklab, var(--accent-text) 60%, var(--muted));
+  }
+
+  &.string,
+  &.attr-value,
+  &.number,
+  &.boolean,
+  &.variable,
+  &.assign-left,
+  &.parameter {
+    color: var(--code-value);
+  }
+
+  &.attr-name {
+    color: var(--fg);
+    --wght: 600;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *:before,
+  *:after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
